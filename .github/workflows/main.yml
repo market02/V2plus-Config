@@ -34,6 +34,14 @@ jobs:
         python app.py
         python sort.py
 
+    # 新增：连通性检测和清理无效配置
+    - name: Check connectivity and clean invalid configs
+      working-directory: Files
+      run: |
+        echo "开始连通性检测..."
+        python connectivity_checker.py
+        echo "连通性检测完成"
+
     - name: Commit and push changes
       uses: EndBug/add-and-commit@v7
       with:

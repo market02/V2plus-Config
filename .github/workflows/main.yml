@@ -6,7 +6,7 @@ on:
     branches:
       - main
   schedule:
-    - cron: "*/30 * * * *"
+    - cron: "*/45 * * * *"
 
 jobs:
   build:
@@ -39,7 +39,7 @@ jobs:
       with:
         author_name: "GitHub Actions"
         author_email: "actions@github.com"
-        message: "Updated 30 minutes Ago🤝"
+        message: "Updated 45 minutes Ago🤝"
         add: "."
         pull: "NO-PULL"
         push: true

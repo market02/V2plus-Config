@@ -115,8 +115,8 @@ def main():
     
     protocols = ["vmess", "vless", "trojan", "ss", "ssr", "hy2", "tuic", "warp://"]
     links = [
-        "https://raw.githubusercontent.com/ALIILAPRO/v2rayNG-Config/main/sub.txt",
-        #https://raw.githubusercontent.com/mfuu/v2ray/master/v2ray",
+        #"https://raw.githubusercontent.com/ALIILAPRO/v2rayNG-Config/main/sub.txt",
+        "https://raw.githubusercontent.com/mfuu/v2ray/master/v2ray",
         #"https://raw.githubusercontent.com/ts-sf/fly/main/v2",
         #"https://raw.githubusercontent.com/aiboboxx/v2rayfree/main/v2",
         #"https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/refs/heads/main/app/sub.txt",
@@ -128,8 +128,8 @@ def main():
         #"https://raw.githubusercontent.com/Surfboardv2ray/TGParse/main/splitted/mixed"
     ]
     dir_links = [
-        "https://raw.githubusercontent.com/itsyebekhe/PSG/main/lite/subscriptions/xray/normal/mix",
-        #https://raw.githubusercontent.com/HosseinKoofi/GO_V2rayCollector/main/mixed_iran.txt",
+        #"https://raw.githubusercontent.com/itsyebekhe/PSG/main/lite/subscriptions/xray/normal/mix",
+        "https://raw.githubusercontent.com/HosseinKoofi/GO_V2rayCollector/main/mixed_iran.txt",
         #"https://raw.githubusercontent.com/arshiacomplus/v2rayExtractor/refs/heads/main/mix/sub.html",
         #"https://raw.githubusercontent.com/IranianCypherpunks/sub/main/config",
         #"https://raw.githubusercontent.com/Rayan-Config/C-Sub/refs/heads/main/configs/proxy.txt",
@@ -154,6 +154,12 @@ def main():
     print("Combining and filtering configs...")
     combined_data = decoded_links + decoded_dir_links
     merged_configs = filter_for_protocols(combined_data, protocols)
+    
+    # 限制配置数量为10000条
+    if len(merged_configs) > 10000:
+        merged_configs = merged_configs[:10000]
+        print(f"Limited to 10000 configs (was {len(merged_configs)} before limiting)")
+    
     print(f"Found {len(merged_configs)} unique configs after filtering")
 
     # Write merged configs to output file
@@ -175,44 +181,6 @@ def main():
         encoded_main_config = base64.b64encode(main_config_data.encode()).decode()
         f.write(encoded_main_config)
     print(f"Base64 config file created: {main_base64_filename}")
-
-    # Split merged configs into smaller files (no more than 500 configs per file)
-    print("Creating split files...")
-    with open(output_filename, "r", encoding="utf-8") as f:
-        lines = f.readlines()
-
-    num_lines = len(lines)
-    max_lines_per_file = 500
-    num_files = (num_lines + max_lines_per_file - 1) // max_lines_per_file
-    print(f"Splitting into {num_files} files with max {max_lines_per_file} lines each")
-
-    for i in range(num_files):
-        profile_title = f"🆓 Git:barry-far | Sub{i+1} 🔥"
-        encoded_title = base64.b64encode(profile_title.encode()).decode()
-        custom_fixed_text = f"""#profile-title: base64:{encoded_title}
-#profile-update-interval: 1
-#subscription-userinfo: upload=29; download=12; total=10737418240000000; expire=2546249531
-#support-url: https://github.com/barry-far/V2ray-config
-#profile-web-page-url: https://github.com/barry-far/V2ray-config
-"""
-
-        input_filename = os.path.join(output_folder, f"Sub{i + 1}.txt")
-        with open(input_filename, "w", encoding="utf-8") as f:
-            f.write(custom_fixed_text)
-            start_index = i * max_lines_per_file
-            end_index = min((i + 1) * max_lines_per_file, num_lines)
-            for line in lines[start_index:end_index]:
-                f.write(line)
-        print(f"Created: Sub{i + 1}.txt")
-
-        with open(input_filename, "r", encoding="utf-8") as input_file:
-            config_data = input_file.read()
-        
-        base64_output_filename = os.path.join(base64_folder, f"Sub{i + 1}_base64.txt")
-        with open(base64_output_filename, "w", encoding="utf-8") as output_file:
-            encoded_config = base64.b64encode(config_data.encode()).decode()
-            output_file.write(encoded_config)
-        print(f"Created: Sub{i + 1}_base64.txt")
 
     print(f"\nProcess completed successfully!")
     print(f"Total configs processed: {len(merged_configs)}")

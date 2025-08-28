@@ -162,21 +162,11 @@ class V2rayConfigChecker:
         
         print(f"测试 {protocol}://{host}:{port}")
         
-        # 1. 先测试Ping
-        ping_ok = self.test_ping_connectivity(host)
-        print(f"  Ping: {'✓' if ping_ok else '✗'}")
-        
-        # 2. 测试TCP端口
+        # 只测试TCP端口连通性
         tcp_ok = self.test_tcp_connectivity(host, port)
         print(f"  TCP {port}: {'✓' if tcp_ok else '✗'}")
         
-        # 如果是HTTPS端口，也测试80端口
-        if port == 443:
-            tcp_80_ok = self.test_tcp_connectivity(host, 80)
-            print(f"  TCP 80: {'✓' if tcp_80_ok else '✗'}")
-            return ping_ok and (tcp_ok or tcp_80_ok)
-        
-        return ping_ok and tcp_ok
+        return tcp_ok
     
     def check_file(self, file_path):
         """检查配置文件中的所有配置"""
@@ -219,14 +209,8 @@ class V2rayConfigChecker:
                 print(f"  第{i}行: ? 无法解析，保留")
         
         # 写回文件
-        if invalid_count > 0:
-            backup_path = file_path + '.backup'
-            # 创建备份
-            with open(backup_path, 'w', encoding='utf-8') as f:
-                f.writelines(lines)
-            print(f"已创建备份: {backup_path}")
-            
-            # 写入清理后的配置
+        if invalid_count > 0: 
+            # 直接清理后的配置
             with open(file_path, 'w', encoding='utf-8') as f:
                 f.writelines(valid_lines)
             
@@ -239,17 +223,10 @@ class V2rayConfigChecker:
         base_dir = os.path.dirname(os.path.abspath(__file__))
         parent_dir = os.path.dirname(base_dir)
         
+        # 只检查All_Configs_Sub.txt文件
         files_to_check = [
             os.path.join(parent_dir, 'All_Configs_Sub.txt'),
-            os.path.join(parent_dir, 'Sub1.txt'),
-            os.path.join(parent_dir, 'Sub2.txt'),
         ]
-        
-        # 检查协议分类文件
-        protocol_dir = os.path.join(parent_dir, 'Splitted-By-Protocol')
-        if os.path.exists(protocol_dir):
-            for protocol_file in ['vmess.txt', 'vless.txt', 'trojan.txt', 'ss.txt', 'ssr.txt']:
-                files_to_check.append(os.path.join(protocol_dir, protocol_file))
         
         for file_path in files_to_check:
             if os.path.exists(file_path):

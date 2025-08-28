@@ -187,8 +187,8 @@ def main():
     print(f"Files created:")
     print(f"  - All_Configs_Sub.txt")
     print(f"  - All_Configs_base64_Sub.txt") 
-    print(f"  - {num_files} split files (Sub1.txt to Sub{num_files}.txt)")
-    print(f"  - {num_files} base64 split files (Sub1_base64.txt to Sub{num_files}_base64.txt)")
+    #print(f"  - {num_files} split files (Sub1.txt to Sub{num_files}.txt)")
+    #print(f"  - {num_files} base64 split files (Sub1_base64.txt to Sub{num_files}_base64.txt)")
 
 if __name__ == "__main__":
     main()

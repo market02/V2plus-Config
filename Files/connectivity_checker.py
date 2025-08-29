@@ -136,21 +136,6 @@ class V2rayConfigChecker:
             print(f"TCP连接测试失败 {host}:{port} - {e}")
             return False
     
-    def test_ping_connectivity(self, host):
-        """测试Ping连通性"""
-        try:
-            # Windows使用ping -n，Linux使用ping -c
-            if sys.platform.startswith('win'):
-                cmd = ['ping', '-n', '1', '-w', str(self.timeout * 1000), host]
-            else:
-                cmd = ['ping', '-c', '1', '-W', str(self.timeout), host]
-            
-            result = subprocess.run(cmd, capture_output=True, text=True, timeout=self.timeout + 2)
-            return result.returncode == 0
-        except Exception as e:
-            print(f"Ping测试失败 {host} - {e}")
-            return False
-    
     def test_config_connectivity(self, config_info):
         """测试单个配置的连通性"""
         if not config_info:
@@ -208,15 +193,38 @@ class V2rayConfigChecker:
                 valid_lines.append(line + '\n')
                 print(f"  第{i}行: ? 无法解析，保留")
         
-        # 写回文件
-        if invalid_count > 0: 
-            # 直接清理后的配置
-            with open(file_path, 'w', encoding='utf-8') as f:
+        # 生成新的文件名（检测后的有效配置）
+        base_name = os.path.splitext(file_path)[0]
+        extension = os.path.splitext(file_path)[1]
+        valid_file_path = f"{base_name}_valid{extension}"
+        
+        # 写入检测后的有效配置到新文件
+        if invalid_count > 0:
+            with open(valid_file_path, 'w', encoding='utf-8') as f:
                 f.writelines(valid_lines)
             
             print(f"已删除 {invalid_count} 个无效配置")
+            print(f"原始文件保留: {file_path}")
+            print(f"有效配置保存到: {valid_file_path}")
+            
+            # 同时生成Base64版本
+            if file_path.endswith('All_Configs_Sub.txt'):
+                import base64
+                
+                # 读取有效配置内容
+                with open(valid_file_path, 'r', encoding='utf-8') as f:
+                    content = f.read()
+                
+                # 生成Base64编码版本
+                base64_content = base64.b64encode(content.encode('utf-8')).decode('utf-8')
+                base64_file_path = f"{base_name}_valid_base64{extension}"
+                
+                with open(base64_file_path, 'w', encoding='utf-8') as f:
+                    f.write(base64_content)
+                
+                print(f"Base64版本保存到: {base64_file_path}")
         else:
-            print("所有配置都有效，无需修改")
+            print("所有配置都有效，无需生成新文件")
     
     def check_all_files(self):
         """检查所有配置文件"""

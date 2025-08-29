@@ -6,6 +6,8 @@ import os
 
 # Define a fixed timeout for HTTP requests
 TIMEOUT = 15  # seconds
+# Define maximum number of configurations
+MAX_CONFIGS = 10000
 
 # Define the fixed text for the initial configuration
 fixed_text = """#profile-title: base64:8J+GkyBHaXRodWIgfCBCYXJyeS1mYXIg8J+ltw==
@@ -26,41 +28,60 @@ def decode_base64(encoded):
             pass
     return decoded
 
-# Function to decode base64-encoded links with a timeout
-def decode_links(links):
+# Function to decode base64-encoded links with a timeout and config limit
+def decode_links(links, max_configs, current_count=0):
     decoded_data = []
     for link in links:
+        if current_count >= max_configs:
+            break
         try:
             response = requests.get(link, timeout=TIMEOUT)
             encoded_bytes = response.content
             decoded_text = decode_base64(encoded_bytes)
-            decoded_data.append(decoded_text)
+            if decoded_text:
+                decoded_data.append(decoded_text)
+                # Rough estimate of configs in this source
+                lines = decoded_text.strip().split('\n')
+                config_lines = [line for line in lines if line.strip() and not line.strip().startswith('#')]
+                current_count += len(config_lines)
         except requests.RequestException:
             pass  # If the request fails or times out, skip it
-    return decoded_data
+    return decoded_data, current_count
 
-# Function to decode directory links with a timeout
-def decode_dir_links(dir_links):
+# Function to decode directory links with a timeout and config limit
+def decode_dir_links(dir_links, max_configs, current_count=0):
     decoded_dir_links = []
     for link in dir_links:
+        if current_count >= max_configs:
+            break
         try:
             response = requests.get(link, timeout=TIMEOUT)
             decoded_text = response.text
-            decoded_dir_links.append(decoded_text)
+            if decoded_text:
+                decoded_dir_links.append(decoded_text)
+                # Rough estimate of configs in this source
+                lines = decoded_text.strip().split('\n')
+                config_lines = [line for line in lines if line.strip() and not line.strip().startswith('#')]
+                current_count += len(config_lines)
         except requests.RequestException:
             pass  # If the request fails or times out, skip it
-    return decoded_dir_links
+    return decoded_dir_links, current_count
 
 # Filter function to select lines based on specified protocols and remove duplicates (only for config lines)
-def filter_for_protocols(data, protocols):
+def filter_for_protocols(data, protocols, max_configs):
     filtered_data = []
     seen_configs = set()
+    config_count = 0
     
     # Process each decoded content
     for content in data:
+        if config_count >= max_configs:
+            break
         if content and content.strip():  # Skip empty content
             lines = content.strip().split('\n')
             for line in lines:
+                if config_count >= max_configs:
+                    break
                 line = line.strip()
                 if line.startswith('#') or not line:
                     # Always keep comment/metadata/empty lines
@@ -69,6 +90,7 @@ def filter_for_protocols(data, protocols):
                     if line not in seen_configs:
                         filtered_data.append(line)
                         seen_configs.add(line)
+                        config_count += 1
     return filtered_data
 
 
@@ -144,21 +166,20 @@ def main():
     ]
 
     print("Fetching base64 encoded configs...")
-    decoded_links = decode_links(links)
-    print(f"Decoded {len(decoded_links)} base64 sources")
+    decoded_links, config_count = decode_links(links, MAX_CONFIGS)
+    print(f"Decoded {len(decoded_links)} base64 sources, estimated {config_count} configs")
     
-    print("Fetching direct text configs...")
-    decoded_dir_links = decode_dir_links(dir_links)
-    print(f"Decoded {len(decoded_dir_links)} direct text sources")
+    if config_count < MAX_CONFIGS:
+        print("Fetching direct text configs...")
+        decoded_dir_links, config_count = decode_dir_links(dir_links, MAX_CONFIGS, config_count)
+        print(f"Decoded {len(decoded_dir_links)} direct text sources, total estimated {config_count} configs")
+    else:
+        decoded_dir_links = []
+        print("Skipping direct text configs as limit already reached")
 
     print("Combining and filtering configs...")
     combined_data = decoded_links + decoded_dir_links
-    merged_configs = filter_for_protocols(combined_data, protocols)
-    
-    # 限制配置数量为10000条
-    if len(merged_configs) > 10000:
-        merged_configs = merged_configs[:10000]
-        print(f"Limited to 10000 configs (was {len(merged_configs)} before limiting)")
+    merged_configs = filter_for_protocols(combined_data, protocols, MAX_CONFIGS)
     
     print(f"Found {len(merged_configs)} unique configs after filtering")
 

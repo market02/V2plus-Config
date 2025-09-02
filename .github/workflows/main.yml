@@ -6,7 +6,7 @@ on:
     branches:
       - main
   schedule:
-    - cron: "*/60 * * * *"
+    - cron: "0 */6 * * *"
 
 jobs:
   build:
@@ -47,10 +47,59 @@ jobs:
       with:
         author_name: "GitHub Actions"
         author_email: "actions@github.com"
-        message: "Updated 60 minutes Ago🤝"
+        message: "Updated 6 Hours Ago🤝"
         add: "."
         pull: "NO-PULL"
         push: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+
+    # 配置多个 SSH 密钥
+    - name: Setup SSH Agent for multiple keys
+      uses: webfactory/ssh-agent@v0.9.0
+      with:
+        ssh-private-key: |
+          ${{ secrets.GITCODE_SSH_PRIVATE_KEY }}
+          ${{ secrets.GITEE_SSH_PRIVATE_KEY }}
+
+    - name: Add Git hosts to known hosts
+      run: |
+        ssh-keyscan -H gitcode.com >> ~/.ssh/known_hosts
+        ssh-keyscan -H gitee.com >> ~/.ssh/known_hosts
+
+    # 添加 SSH 调试步骤
+    - name: Debug SSH connections
+      run: |
+        echo "Testing SSH connection to gitcode.com..."
+        ssh -T git@gitcode.com -o StrictHostKeyChecking=no || echo "GitCode SSH test completed with exit code $?"
+        echo "Testing SSH connection to gitee.com..."
+        ssh -T git@gitee.com -o StrictHostKeyChecking=no || echo "Gitee SSH test completed with exit code $?"
+        echo "Listing SSH keys:"
+        ssh-add -l
+
+    - name: Configure Git and Deploy to Remote Repositories
+      run: |
+        # 配置 Git 全局设置
+        git config --global user.name "amessboy"
+        git config --global user.email "v9736982301@outlook.com"
+        git config --global init.defaultBranch main
+
+        # 部署到 GitCode
+        git clone git@gitcode.com:amessboy/DeployData.git result
+        cd result
+        cp ../All_Configs_Sub_valid.txt ../All_Configs_Sub_valid_base64.txt ./
+        git add .
+        git commit -m "Update valid configs from GitHub Actions" || echo "No changes to commit"
+        git pull && git push
+        cd ..
+        
+        # 部署到 Gitee
+        git clone git@gitee.com:amessboy/DeployData.git result
+        cd result
+        cp ../All_Configs_Sub_valid.txt ../All_Configs_Sub_valid_base64.txt ./
+        git add .
+        git commit -m "Update valid configs from GitHub Actions" || echo "No changes to commit"
+        git pull && git push
+        cd ..
 

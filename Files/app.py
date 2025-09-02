@@ -70,8 +70,27 @@ def decode_dir_links(dir_links, max_configs, current_count=0):
 # Filter function to select lines based on specified protocols and remove duplicates (only for config lines)
 def filter_for_protocols(data, protocols, max_configs):
     filtered_data = []
-    seen_configs = set()
+    seen_configs = set()      # 原有的完全匹配去重
+    seen_endpoints = set()    # 新增：endpoint去重 (protocol+host+port)
     config_count = 0
+    
+    def get_endpoint_key(config_line):
+        """提取节点的endpoint标识：protocol+host+port"""
+        import re
+        try:
+            # 统一的正则匹配模式
+            patterns = [
+                (r'(vless|vmess|trojan)://[^@]*@([^:/]+):(\d+)', lambda m: f"{m.group(1)}_{m.group(2)}_{m.group(3)}"),
+                (r'(ss|ssr)://[^@]*@([^:/]+):(\d+)', lambda m: f"{m.group(1)}_{m.group(2)}_{m.group(3)}")
+            ]
+            
+            for pattern, formatter in patterns:
+                match = re.search(pattern, config_line)
+                if match:
+                    return formatter(match)
+        except:
+            pass
+        return None
     
     # Process each decoded content
     for content in data:
@@ -84,15 +103,19 @@ def filter_for_protocols(data, protocols, max_configs):
                     break
                 line = line.strip()
                 if line.startswith('#') or not line:
-                    # Always keep comment/metadata/empty lines
                     filtered_data.append(line)
                 elif any(protocol in line for protocol in protocols):
+                    # 第一层：完全匹配去重（保留原逻辑）
                     if line not in seen_configs:
-                        filtered_data.append(line)
-                        seen_configs.add(line)
-                        config_count += 1
+                        # 第二层：endpoint去重（新增逻辑）
+                        endpoint_key = get_endpoint_key(line)
+                        if not endpoint_key or endpoint_key not in seen_endpoints:
+                            filtered_data.append(line)
+                            seen_configs.add(line)
+                            if endpoint_key:
+                                seen_endpoints.add(endpoint_key)
+                            config_count += 1
     return filtered_data
-
 
 
 # Create necessary directories if they don't exist
@@ -123,15 +146,7 @@ def main():
         os.remove(main_base64_filename)
         print(f"Removed: {main_base64_filename}")
 
-    for i in range(1, 21):  # Clean Sub1.txt to Sub20.txt
-        filename = os.path.join(output_folder, f"Sub{i}.txt")
-        if os.path.exists(filename):
-            os.remove(filename)
-            print(f"Removed: {filename}")
-        filename_base64 = os.path.join(base64_folder, f"Sub{i}_base64.txt")
-        if os.path.exists(filename_base64):
-            os.remove(filename_base64)
-            print(f"Removed: {filename_base64}")
+
 
     print("Starting to fetch and process configs...")
     

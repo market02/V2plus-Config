@@ -6,7 +6,7 @@ on:
     branches:
       - main
   schedule:
-    - cron: "0 */6 * * *"
+    - cron: "0 */2 * * *"
 
 jobs:
   build:
@@ -86,18 +86,18 @@ jobs:
         git config --global init.defaultBranch main
 
         # 部署到 GitCode
-        git clone git@gitcode.com:amessboy/DeployData.git result
-        cd result
-        cp ../All_Configs_Sub_valid.txt ../All_Configs_Sub_valid_base64.txt ./
+        git clone git@gitcode.com:amessboy/DeployData.git gitcode-deploy
+        cd gitcode-deploy
+        cp ../All_Configs_Sub_valid_base64.txt ./
         git add .
         git commit -m "Update valid configs from GitHub Actions" || echo "No changes to commit"
         git pull && git push
         cd ..
         
         # 部署到 Gitee
-        git clone git@gitee.com:amessboy/DeployData.git result
-        cd result
-        cp ../All_Configs_Sub_valid.txt ../All_Configs_Sub_valid_base64.txt ./
+        git clone git@gitee.com:amessboy/DeployData.git gitee-deploy
+        cd gitee-deploy
+        cp ../All_Configs_Sub_valid_base64.txt ./
         git add .
         git commit -m "Update valid configs from GitHub Actions" || echo "No changes to commit"
         git pull && git push

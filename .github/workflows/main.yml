@@ -42,6 +42,25 @@ jobs:
         python connectivity_checker.py
         echo "连通性检测完成"
 
+    # 新增：AES加密步骤
+    - name: Encrypt valid configs with AES
+      working-directory: Files
+      run: |
+        echo "开始AES加密..."
+        python -c "
+        from encrypt_service import EncryptService
+        import os
+        
+        # 检查文件是否存在
+        if os.path.exists('../All_Configs_Sub_valid.txt'):
+            encrypt_service = EncryptService('${{ secrets.AES_PASSWORD }}')
+            encrypted_file = encrypt_service.encrypt_file('../All_Configs_Sub_valid.txt', '../All_Configs_Sub_valid.txt.encrypted')
+            print(f'文件已加密: {encrypted_file}')
+        else:
+            print('未找到有效配置文件，跳过加密步骤')
+        "
+        echo "AES加密完成"
+
     - name: Commit and push changes
       uses: EndBug/add-and-commit@v7
       with:
@@ -88,18 +107,20 @@ jobs:
         # 部署到 GitCode
         git clone git@gitcode.com:amessboy/DeployData.git gitcode-deploy
         cd gitcode-deploy
-        cp ../All_Configs_Sub_valid_base64.txt ./
+        # 复制文件并重命名为result
+        cp ../All_Configs_Sub_valid.txt.encrypted ./result
         git add .
-        git commit -m "Update valid configs from GitHub Actions" || echo "No changes to commit"
+        git commit -m "Update encrypted configs from GitHub Actions" || echo "No changes to commit"
         git pull && git push
         cd ..
         
         # 部署到 Gitee
         git clone git@gitee.com:amessboy/DeployData.git gitee-deploy
         cd gitee-deploy
-        cp ../All_Configs_Sub_valid_base64.txt ./
+        # 复制文件并重命名为result
+        cp ../All_Configs_Sub_valid.txt.encrypted ./result
         git add .
-        git commit -m "Update valid configs from GitHub Actions" || echo "No changes to commit"
+        git commit -m "Update encrypted configs from GitHub Actions" || echo "No changes to commit"
         git pull && git push
         cd ..
 

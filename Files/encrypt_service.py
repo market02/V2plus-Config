@@ -140,25 +140,3 @@ class EncryptService:
             f.write(decrypted_data)
         
         return output_path
-
-if __name__ == "__main__":
-    # 创建加密服务实例
-    service = EncryptService()
-    
-    # 测试字符串加密和解密
-    original_text = "Hello, V2ray-Config!"
-    print(f"原始文本: {original_text}")
-    
-    encrypted = service.encrypt_aes(original_text)
-    print(f"加密后: {encrypted}")
-    
-    decrypted = service.decrypt_aes(encrypted)
-    print(f"解密后: {decrypted}")
-    
-    # 如果需要测试文件加密/解密，取消下面的注释
-    # test_file = "path/to/test/file.txt"
-    # encrypted_file = service.encrypt_file(test_file)
-    # print(f"文件已加密: {encrypted_file}")
-    # 
-    # decrypted_file = service.decrypt_file(encrypted_file)
-    # print(f"文件已解密: {decrypted_file}")

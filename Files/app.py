@@ -207,17 +207,6 @@ def main():
             f.write(config + "\n")
     print(f"Main config file created: {output_filename}")
 
-    # 移除 base64 版本的创建
-    # print("Creating base64 version...")
-    # with open(output_filename, "r", encoding="utf-8") as f:
-    #     main_config_data = f.read()
-    # 
-    # main_base64_filename = os.path.join(output_folder, "All_Configs_base64_Sub.txt")
-    # with open(main_base64_filename, "w", encoding="utf-8") as f:
-    #     encoded_main_config = base64.b64encode(main_config_data.encode()).decode()
-    #     f.write(encoded_main_config)
-    # print(f"Base64 config file created: {main_base64_filename}")
-
     print(f"\nProcess completed successfully!")
     print(f"Total configs processed: {len(merged_configs)}")
     print(f"Files created:")

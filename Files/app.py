@@ -131,7 +131,22 @@ def ensure_directories_exist():
     return output_folder, base64_folder
 
 # Main function to process links and write output files
+def load_links_from_resources():
+    with open('../Resources', 'r', encoding='utf-8') as f:
+        links = [line.strip() for line in f if line.strip() and not line.startswith('#')]
+    
+    with open('../C-Resources', 'r', encoding='utf-8') as f:
+        dir_links = [line.strip() for line in f if line.strip() and not line.startswith('#')]
+    
+    return links, dir_links
+
 def main():
+    protocols = ["vmess", "vless", "trojan", "ss", "ssr", "hy2", "tuic", "warp://"]
+    
+    # 从外部文件加载链接
+    links, dir_links = load_links_from_resources()
+    
+    all_configs = []
     output_folder, base64_folder = ensure_directories_exist()  # Ensure directories are created
 
     # Clean existing output files FIRST before processing

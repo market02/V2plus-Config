@@ -68,7 +68,7 @@ jobs:
         author_email: "actions@github.com"
         message: "Updated 6 Hours Ago🤝"
         add: "."
-        pull: "NO-PULL"
+        pull: "--rebase"  # 修改为使用rebase方式拉取更改
         push: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -111,7 +111,7 @@ jobs:
         cp ../All_Configs_Sub_valid.txt.encrypted ./result
         git add .
         git commit -m "Update encrypted configs from GitHub Actions" || echo "No changes to commit"
-        git pull && git push
+        git pull --rebase && git push  # 添加拉取操作
         cd ..
         
         # 部署到 Gitee
@@ -121,6 +121,6 @@ jobs:
         cp ../All_Configs_Sub_valid.txt.encrypted ./result
         git add .
         git commit -m "Update encrypted configs from GitHub Actions" || echo "No changes to commit"
-        git pull && git push
+        git pull --rebase && git push  # 添加拉取操作
         cd ..
 

@@ -216,7 +216,7 @@ def main():
     # Write merged configs to output file
     print("Writing main config file...")
     output_filename = os.path.join(output_folder, "All_Configs_Sub.txt")
-    with open(output_filename, "w", encoding="utf-8") as f:
+    with open(output_filename, "w", encoding="utf-8", newline="\n") as f:
         f.write(fixed_text)
         for config in merged_configs:
             f.write(config + "\n")

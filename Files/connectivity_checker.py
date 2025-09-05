@@ -561,7 +561,7 @@ class V2rayConfigChecker:
         
         # 写入检测后的有效配置到新文件
         if invalid_count > 0:
-            with open(valid_file_path, 'w', encoding='utf-8') as f:
+            with open(valid_file_path, 'w', encoding='utf-8', newline='\n') as f:
                 f.writelines(valid_lines)
             
             print(f"已删除 {invalid_count} 个无效配置")

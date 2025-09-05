@@ -73,19 +73,21 @@ class EncryptService:
         return unpadded_data.decode('utf-8-sig')
        
     def encrypt_file(self, file_path: str, output_path: str = None) -> str:
-        """同步加密文件"""
+        """加密文件"""
         if not os.path.exists(file_path):
             raise FileNotFoundError(f"文件不存在: {file_path}")
         
         if output_path is None:
             output_path = file_path + ".encrypted"
         
-        with open(file_path, 'r', encoding='utf-8') as f:
+        # 读取明文：保留原始换行，避免 \r\n -> \n 的规范化
+        with open(file_path, 'r', encoding='utf-8', newline='') as f:
             file_data = f.read()
         
         encrypted_data = self.encrypt_aes(file_data, self.password)
         
-        with open(output_path, 'w', encoding='utf-8') as f:
+        # 写入密文：一般无换行，但为一致性依然使用 newline=''
+        with open(output_path, 'w', encoding='utf-8', newline='') as f:
             f.write(encrypted_data)
         
         return output_path
@@ -98,13 +100,14 @@ class EncryptService:
         if output_path is None:
             output_path = file_path + ".decrypted"
         
-        with open(file_path, 'r', encoding='utf-8') as f:
+        # 读取密文：对 Base64 无影响，保持一致
+        with open(file_path, 'r', encoding='utf-8', newline='') as f:
             encrypted_data = f.read()
         
-        # 传入与加密一致的密码参数
         decrypted_data = self.decrypt_aes(encrypted_data, self.password)
         
-        with open(output_path, 'w', encoding='utf-8') as f:
+        # 写回明文：保留原始换行，确保与加密前一致
+        with open(output_path, 'w', encoding='utf-8', newline='') as f:
             f.write(decrypted_data)
         
         return output_path

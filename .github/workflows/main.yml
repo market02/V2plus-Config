@@ -53,7 +53,7 @@ jobs:
         
         # 检查文件是否存在
         if os.path.exists('../All_Configs_Sub_valid.txt'):
-            encrypt_service = EncryptService('${{ secrets.AES_PASSWORD }}')
+            encrypt_service = EncryptService('v2plus')
             encrypted_file = encrypt_service.encrypt_file('../All_Configs_Sub_valid.txt', '../All_Configs_Sub_valid.txt.encrypted')
             print(f'文件已加密: {encrypted_file}')
         else:

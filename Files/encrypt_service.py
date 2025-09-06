@@ -2,6 +2,8 @@
 import base64
 import hashlib
 import os
+import sys          # ← 新增
+import argparse     # ← 新增
 
 # 第三方库导入
 from cryptography.hazmat.backends import default_backend

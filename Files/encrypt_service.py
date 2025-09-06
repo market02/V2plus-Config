@@ -111,3 +111,28 @@ class EncryptService:
             f.write(decrypted_data)
         
         return output_path
+
+
+def main():
+    """命令行入口"""
+    parser = argparse.ArgumentParser(description='AES加密配置文件')
+    parser.add_argument('--password', '-p', default='v2plus', help='AES加密密码')
+    parser.add_argument('--input', '-i', default='../All_Configs_Sub_valid.txt', help='输入文件路径')
+    parser.add_argument('--output', '-o', help='输出文件路径')
+    
+    args = parser.parse_args()
+    
+    try:
+        service = EncryptService(args.password)
+        output_file = service.encrypt_file(args.input, args.output)
+        print(f'文件已加密: {output_file}')
+        return 0
+    except FileNotFoundError as e:
+        print(f'错误: {e}', file=sys.stderr)
+        return 1
+    except Exception as e:
+        print(f'加密失败: {e}', file=sys.stderr)
+        return 1
+
+if __name__ == '__main__':
+    sys.exit(main())

@@ -549,10 +549,10 @@ class V2rayConfigChecker:
                     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                     print(f"[{timestamp}]   第{i}行: ✗ 无效，已删除")
             else:
-                # 无法解析的行保留
-                valid_lines.append(line + '\n')
+                self.invalid_configs.append(config_info)
+                invalid_count += 1
                 timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                print(f"[{timestamp}]   第{i}行: ? 无法解析，保留")
+                print(f"[{timestamp}]   第{i}行: ? 无法解析，删除")
         
         # 生成新的文件名（检测后的有效配置）
         base_name = os.path.splitext(file_path)[0]

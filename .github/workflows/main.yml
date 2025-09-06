@@ -6,121 +6,106 @@ on:
     branches:
       - main
   schedule:
-    - cron: "0 */2 * * *"
+    - cron: "* */6 * * *"
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code  
-      uses: actions/checkout@v2  
-      with:
-        fetch-depth: 0  
-        persist-credentials: true  
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          persist-credentials: true
 
-    - name: Set up Python  
-      uses: actions/setup-python@v2  
-      with:
-        python-version: '3.11'
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.11"
 
-    - name: Install dependencies  
-      working-directory: Files  
-      run: pip install -r requirements.txt
+      - name: Install dependencies
+        working-directory: Files
+        run: pip install -r requirements.txt
 
-    - name: Run Python scripts  
-      working-directory: Files  
-      run: |
-        python app.py
-      #python sort.py
+      - name: Run Python scripts
+        working-directory: Files
+        run: |
+          python app.py
+        #python sort.py
 
-    # 新增：连通性检测和清理无效配置
-    - name: Check connectivity and clean invalid configs
-      working-directory: Files
-      run: |
-        echo "开始连通性检测..."
-        python connectivity_checker.py
-        echo "连通性检测完成"
+      # 新增：连通性检测和清理无效配置
+      - name: Check connectivity and clean invalid configs
+        working-directory: Files
+        run: |
+          echo "开始连通性检测..."
+          python connectivity_checker.py
+          echo "连通性检测完成"
 
-    # 新增：AES加密步骤
-    - name: Encrypt valid configs with AES
-      working-directory: Files
-      run: |
-        echo "开始AES加密..."
-        python -c "
-        from encrypt_service import EncryptService
-        import os
-        
-        # 检查文件是否存在
-        if os.path.exists('../All_Configs_Sub_valid.txt'):
-            encrypt_service = EncryptService('v2plus')
-            encrypted_file = encrypt_service.encrypt_file('../All_Configs_Sub_valid.txt', '../All_Configs_Sub_valid.txt.encrypted')
-            print(f'文件已加密: {encrypted_file}')
-        else:
-            print('未找到有效配置文件，跳过加密步骤')
-        "
-        echo "AES加密完成"
+      # 新增：AES加密步骤
+      - name: Encrypt valid configs with AES
+        working-directory: Files
+        run: |
+          python encrypt_service.py --password "${{ secrets.AES_PASSWORD }}"
 
-    - name: Commit and push changes
-      uses: EndBug/add-and-commit@v7
-      with:
-        author_name: "GitHub Actions"
-        author_email: "actions@github.com"
-        message: "Updated 6 Hours Ago🤝"
-        add: "."
-        pull: "--rebase"  # 修改为使用rebase方式拉取更改
-        push: true
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Commit and push changes
+        uses: EndBug/add-and-commit@v7
+        with:
+          author_name: "GitHub Actions"
+          author_email: "actions@github.com"
+          message: "Updated 6 Hours Ago🤝"
+          add: "."
+          push: true
+          push_options: "--force"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      # 配置多个 SSH 密钥
+      - name: Setup SSH Agent for multiple keys
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: |
+            ${{ secrets.GITCODE_SSH_PRIVATE_KEY }}
+            ${{ secrets.GITEE_SSH_PRIVATE_KEY }}
 
-    # 配置多个 SSH 密钥
-    - name: Setup SSH Agent for multiple keys
-      uses: webfactory/ssh-agent@v0.9.0
-      with:
-        ssh-private-key: |
-          ${{ secrets.GITCODE_SSH_PRIVATE_KEY }}
-          ${{ secrets.GITEE_SSH_PRIVATE_KEY }}
+      - name: Add Git hosts to known hosts
+        run: |
+          ssh-keyscan -H gitcode.com >> ~/.ssh/known_hosts
+          ssh-keyscan -H gitee.com >> ~/.ssh/known_hosts
 
-    - name: Add Git hosts to known hosts
-      run: |
-        ssh-keyscan -H gitcode.com >> ~/.ssh/known_hosts
-        ssh-keyscan -H gitee.com >> ~/.ssh/known_hosts
+      # 添加 SSH 调试步骤
+      - name: Debug SSH connections
+        run: |
+          echo "Testing SSH connection to gitcode.com..."
+          ssh -T git@gitcode.com -o StrictHostKeyChecking=no || echo "GitCode SSH test completed with exit code $?"
+          echo "Testing SSH connection to gitee.com..."
+          ssh -T git@gitee.com -o StrictHostKeyChecking=no || echo "Gitee SSH test completed with exit code $?"
+          echo "Listing SSH keys:"
+          ssh-add -l
 
-    # 添加 SSH 调试步骤
-    - name: Debug SSH connections
-      run: |
-        echo "Testing SSH connection to gitcode.com..."
-        ssh -T git@gitcode.com -o StrictHostKeyChecking=no || echo "GitCode SSH test completed with exit code $?"
-        echo "Testing SSH connection to gitee.com..."
-        ssh -T git@gitee.com -o StrictHostKeyChecking=no || echo "Gitee SSH test completed with exit code $?"
-        echo "Listing SSH keys:"
-        ssh-add -l
+      - name: Configure Git and Deploy to Remote Repositories
+        run: |
+          # 配置 Git 全局设置
+          git config --global user.name "amessboy"
+          git config --global user.email "v9736982301@outlook.com"
+          git config --global init.defaultBranch main
 
-    - name: Configure Git and Deploy to Remote Repositories
-      run: |
-        # 配置 Git 全局设置
-        git config --global user.name "amessboy"
-        git config --global user.email "v9736982301@outlook.com"
-        git config --global init.defaultBranch main
+          # 部署到 GitCode
+          git clone git@gitcode.com:amessboy/DeployData.git gitcode-deploy
+          cd gitcode-deploy
+          # 复制文件并重命名为result
+          cp ../All_Configs_Sub_valid.txt.encrypted ./result
+          git add .
+          git commit -m "Update encrypted configs from GitHub Actions" || echo "No changes to commit"
+          git pull --strategy-option=theirs && git push  # 优先使用远程版本
+          cd ..
 
-        # 部署到 GitCode
-        git clone git@gitcode.com:amessboy/DeployData.git gitcode-deploy
-        cd gitcode-deploy
-        # 复制文件并重命名为result
-        cp ../All_Configs_Sub_valid.txt.encrypted ./result
-        git add .
-        git commit -m "Update encrypted configs from GitHub Actions" || echo "No changes to commit"
-        git pull --rebase && git push  # 添加拉取操作
-        cd ..
-        
-        # 部署到 Gitee
-        git clone git@gitee.com:amessboy/DeployData.git gitee-deploy
-        cd gitee-deploy
-        # 复制文件并重命名为result
-        cp ../All_Configs_Sub_valid.txt.encrypted ./result
-        git add .
-        git commit -m "Update encrypted configs from GitHub Actions" || echo "No changes to commit"
-        git pull --rebase && git push  # 添加拉取操作
-        cd ..
-
+          # 部署到 Gitee
+          git clone git@gitee.com:amessboy/DeployData.git gitee-deploy
+          cd gitee-deploy
+          # 复制文件并重命名为result
+          cp ../All_Configs_Sub_valid.txt.encrypted ./result
+          git add .
+          git commit -m "Update encrypted configs from GitHub Actions" || echo "No changes to commit"
+          git pull --strategy-option=theirs && git push  # 优先使用远程版本
+          cd ..

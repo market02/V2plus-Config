@@ -102,9 +102,9 @@ def filter_for_protocols(data, protocols, max_configs):
                 if config_count >= max_configs:
                     break
                 line = line.strip()
-                if line.startswith('#') or not line:
-                    filtered_data.append(line)
-                elif any(protocol in line for protocol in protocols):
+                if line.startswith('#'):
+                    filtered_data.append(line)  # 只保留注释
+                elif any(protocol in line for protocol in protocols) and line.strip():
                     # 第一层：完全匹配去重（保留原逻辑）
                     if line not in seen_configs:
                         # 第二层：endpoint去重（新增逻辑）

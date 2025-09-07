@@ -526,7 +526,9 @@ class V2rayConfigChecker:
             line = line.strip()
             
             # 跳过注释行和空行
-            if not line or line.startswith('#'):
+            if not line.strip():  # 跳过空行
+                continue
+            if line.startswith('#'):  # 保留注释
                 valid_lines.append(line + '\n')
                 continue
             

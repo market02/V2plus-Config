@@ -391,7 +391,6 @@ class V2rayConfigChecker:
                             except ValueError:
                                 print(f"端口转换失败: {port}")
                                 return None
-                            
         except Exception as e:
             print(f"解析SS配置失败: {e}")
             import traceback
@@ -551,10 +550,10 @@ class V2rayConfigChecker:
                     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                     print(f"[{timestamp}]   第{i}行: ✗ 无效，已删除")
             else:
-                self.invalid_configs.append(config_info)
+                # 无法解析的行删除
                 invalid_count += 1
                 timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                print(f"[{timestamp}]   第{i}行: ? 无法解析，删除")
+                print(f"[{timestamp}]   第{i}行: ✗ 无法解析，已删除")
         
         # 生成新的文件名（检测后的有效配置）
         base_name = os.path.splitext(file_path)[0]
@@ -563,12 +562,19 @@ class V2rayConfigChecker:
         
         # 写入检测后的有效配置到新文件
         if invalid_count > 0:
-            with open(valid_file_path, 'w', encoding='utf-8', newline='\n') as f:
-                f.writelines(valid_lines)
-            
-            print(f"已删除 {invalid_count} 个无效配置")
-            print(f"原始文件保留: {file_path}")
-            print(f"有效配置保存到: {valid_file_path}")
+            # 检查是否有有效配置，避免生成空文件覆盖之前的有效文件
+            if valid_lines:
+                with open(valid_file_path, 'w', encoding='utf-8') as f:
+                    f.writelines(valid_lines)
+                
+                print(f"已删除 {invalid_count} 个无效配置")
+                print(f"原始文件保留: {file_path}")
+                print(f"有效配置保存到: {valid_file_path}")
+            else:
+                print(f"检测到 {invalid_count} 个无效配置，但没有有效配置")
+                print(f"为保护之前的有效文件，不生成空白文件")
+                if os.path.exists(valid_file_path):
+                    print(f"保留之前的有效文件: {valid_file_path}")
         else:
             print("所有配置都有效，无需生成新文件")
     
@@ -586,7 +592,7 @@ class V2rayConfigChecker:
             if os.path.exists(file_path):
                 print(f"\n{'='*50}")
                 self.check_file(file_path)
-        
+
         print(f"\n{'='*50}")
         print(f"检查完成:")
         print(f"  有效配置: {len(self.valid_configs)}")

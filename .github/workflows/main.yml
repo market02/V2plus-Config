@@ -46,6 +46,16 @@ jobs:
           python connectivity_checker.py
           echo "连通性检测完成"
 
+# 新增：IP地理位置分类步骤
+      - name: Classify configs by IP geolocation
+        working-directory: Files
+        run: |
+          echo "开始IP地理位置分类..."
+          python ip_detector_classifier.py
+          echo "IP分类完成"
+          echo "分类结果文件:"
+          ls -la US_CA_configs.txt EU_JP_KR_configs.txt Other_configs.txt 2>/dev/null || echo "分类文件生成中..."
+
       # 新增：AES加密步骤
       - name: Encrypt valid configs with AES
         working-directory: Files
@@ -96,19 +106,27 @@ jobs:
           # 部署到 GitCode
           git clone git@gitcode.com:amessboy/DeployData.git gitcode-deploy
           cd gitcode-deploy
-          # 复制文件并重命名为result
+          # 复制加密的主文件并重命名为result
           cp ../All_Configs_Sub_valid.txt.encrypted ./result
+          # 复制IP分类文件
+          cp ../US_CA_configs.txt ./US_CA_configs.txt 2>/dev/null || echo "US_CA_configs.txt not found"
+          cp ../EU_JP_KR_configs.txt ./EU_JP_KR_configs.txt 2>/dev/null || echo "EU_JP_KR_configs.txt not found"
+          cp ../Other_configs.txt ./Other_configs.txt 2>/dev/null || echo "Other_configs.txt not found"
           git add .
-          git commit -m "Update encrypted configs from GitHub Actions" || echo "No changes to commit"
+          git commit -m "Update encrypted configs and IP classification from GitHub Actions" || echo "No changes to commit"
           git pull --strategy-option=theirs && git push  # 优先使用远程版本
           cd ..
 
           # 部署到 Gitee
           git clone git@gitee.com:amessboy/DeployData.git gitee-deploy
           cd gitee-deploy
-          # 复制文件并重命名为result
+          # 复制加密的主文件并重命名为result
           cp ../All_Configs_Sub_valid.txt.encrypted ./result
+          # 复制IP分类文件
+          cp ../US_CA_configs.txt ./US_CA_configs.txt 2>/dev/null || echo "US_CA_configs.txt not found"
+          cp ../EU_JP_KR_configs.txt ./EU_JP_KR_configs.txt 2>/dev/null || echo "EU_JP_KR_configs.txt not found"
+          cp ../Other_configs.txt ./Other_configs.txt 2>/dev/null || echo "Other_configs.txt not found"
           git add .
-          git commit -m "Update encrypted configs from GitHub Actions" || echo "No changes to commit"
+          git commit -m "Update encrypted configs and IP classification from GitHub Actions" || echo "No changes to commit"
           git pull --strategy-option=theirs && git push  # 优先使用远程版本
           cd ..

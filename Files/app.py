@@ -168,10 +168,10 @@ def main():
     protocols = ["vmess", "vless", "trojan", "ss", "ssr", "hy2", "tuic", "warp://"]
     links = [
         "https://raw.githubusercontent.com/ALIILAPRO/v2rayNG-Config/main/sub.txt",
-        "https://raw.githubusercontent.com/mfuu/v2ray/master/v2ray",
-        "https://raw.githubusercontent.com/ts-sf/fly/main/v2",
-        "https://raw.githubusercontent.com/aiboboxx/v2rayfree/main/v2",
-        "https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/refs/heads/main/app/sub.txt",
+        #"https://raw.githubusercontent.com/mfuu/v2ray/master/v2ray",
+        #"https://raw.githubusercontent.com/ts-sf/fly/main/v2",
+        #"https://raw.githubusercontent.com/aiboboxx/v2rayfree/main/v2",
+        #"https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/refs/heads/main/app/sub.txt",
         #"https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/refs/heads/main/mtn/sub_1.txt",
         #"https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/refs/heads/main/mtn/sub_2.txt",
         #"https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/refs/heads/main/mtn/sub_3.txt",
@@ -181,10 +181,10 @@ def main():
     ]
     dir_links = [
         "https://raw.githubusercontent.com/itsyebekhe/PSG/main/lite/subscriptions/xray/normal/mix",
-        "https://raw.githubusercontent.com/HosseinKoofi/GO_V2rayCollector/main/mixed_iran.txt",
-        "https://raw.githubusercontent.com/arshiacomplus/v2rayExtractor/refs/heads/main/mix/sub.html",
-        "https://raw.githubusercontent.com/IranianCypherpunks/sub/main/config",
-        "https://raw.githubusercontent.com/Rayan-Config/C-Sub/refs/heads/main/configs/proxy.txt",
+        #"https://raw.githubusercontent.com/HosseinKoofi/GO_V2rayCollector/main/mixed_iran.txt",
+        #"https://raw.githubusercontent.com/arshiacomplus/v2rayExtractor/refs/heads/main/mix/sub.html",
+        #"https://raw.githubusercontent.com/IranianCypherpunks/sub/main/config",
+        #"https://raw.githubusercontent.com/Rayan-Config/C-Sub/refs/heads/main/configs/proxy.txt",
         #"https://raw.githubusercontent.com/sashalsk/V2Ray/main/V2Config",
         #"https://raw.githubusercontent.com/mahdibland/ShadowsocksAggregator/master/Eternity.txt",
         #"https://raw.githubusercontent.com/itsyebekhe/HiN-VPN/main/subscription/normal/mix",
@@ -226,9 +226,7 @@ def main():
     print(f"Total configs processed: {len(merged_configs)}")
     print(f"Files created:")
     print(f"  - All_Configs_Sub.txt")
-    # print(f"  - All_Configs_base64_Sub.txt") 
-    #print(f"  - {num_files} split files (Sub1.txt to Sub{num_files}.txt)")
-    #print(f"  - {num_files} base64 split files (Sub1_base64.txt to Sub{num_files}_base64.txt)")
+
 
 if __name__ == "__main__":
     main()

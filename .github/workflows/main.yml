@@ -61,6 +61,9 @@ jobs:
         working-directory: Files
         run: |
           python encrypt_service.py --password "${{ secrets.AES_PASSWORD }}"
+          python encrypt_service.py --password "${{ secrets.AES_PASSWORD }}" --input "../US_CA_configs.txt"
+          python encrypt_service.py --password "${{ secrets.AES_PASSWORD }}" --input "../EU_JP_KR_configs.txt"
+          python encrypt_service.py --password "${{ secrets.AES_PASSWORD }}" --input "../Other_configs.txt"
 
       - name: Commit and push changes
         uses: EndBug/add-and-commit@v9
@@ -108,12 +111,12 @@ jobs:
           cd gitcode-deploy
           # 复制加密的主文件并重命名为result
           cp ../All_Configs_Sub_valid.txt.encrypted ./result
-          # 复制IP分类文件
-          cp ../US_CA_configs.txt ./US_CA_configs.txt 2>/dev/null || echo "US_CA_configs.txt not found"
-          cp ../EU_JP_KR_configs.txt ./EU_JP_KR_configs.txt 2>/dev/null || echo "EU_JP_KR_configs.txt not found"
-          cp ../Other_configs.txt ./Other_configs.txt 2>/dev/null || echo "Other_configs.txt not found"
+          # 复制加密后的三个配置文件
+          cp ../US_CA_configs.txt.encrypted ./US_CA_configs.txt.encrypted 2>/dev/null || echo "US_CA_configs.txt.encrypted not found"
+          cp ../EU_JP_KR_configs.txt.encrypted ./EU_JP_KR_configs.txt.encrypted 2>/dev/null || echo "EU_JP_KR_configs.txt.encrypted not found"
+          cp ../Other_configs.txt.encrypted ./Other_configs.txt.encrypted 2>/dev/null || echo "Other_configs.txt.encrypted not found"
           git add .
-          git commit -m "Update encrypted configs and IP classification from GitHub Actions" || echo "No changes to commit"
+          git commit -m "Update encrypted configs from GitHub Actions" || echo "No changes to commit"
           git pull --strategy-option=theirs && git push  # 优先使用远程版本
           cd ..
 
@@ -122,11 +125,11 @@ jobs:
           cd gitee-deploy
           # 复制加密的主文件并重命名为result
           cp ../All_Configs_Sub_valid.txt.encrypted ./result
-          # 复制IP分类文件
-          cp ../US_CA_configs.txt ./US_CA_configs.txt 2>/dev/null || echo "US_CA_configs.txt not found"
-          cp ../EU_JP_KR_configs.txt ./EU_JP_KR_configs.txt 2>/dev/null || echo "EU_JP_KR_configs.txt not found"
-          cp ../Other_configs.txt ./Other_configs.txt 2>/dev/null || echo "Other_configs.txt not found"
+          # 复制加密后的三个配置文件
+          cp ../US_CA_configs.txt.encrypted ./US_CA_configs.txt.encrypted 2>/dev/null || echo "US_CA_configs.txt.encrypted not found"
+          cp ../EU_JP_KR_configs.txt.encrypted ./EU_JP_KR_configs.txt.encrypted 2>/dev/null || echo "EU_JP_KR_configs.txt.encrypted not found"
+          cp ../Other_configs.txt.encrypted ./Other_configs.txt.encrypted 2>/dev/null || echo "Other_configs.txt.encrypted not found"
           git add .
-          git commit -m "Update encrypted configs and IP classification from GitHub Actions" || echo "No changes to commit"
+          git commit -m "Update encrypted configs from GitHub Actions" || echo "No changes to commit"
           git pull --strategy-option=theirs && git push  # 优先使用远程版本
           cd ..

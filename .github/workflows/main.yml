@@ -54,16 +54,16 @@ jobs:
           python ip_detector_classifier.py
           echo "IP分类完成"
           echo "分类结果文件:"
-          ls -la US_CA_configs.txt EU_JP_KR_configs.txt Other_configs.txt 2>/dev/null || echo "分类文件生成中..."
+          ls -la US_CA EU_JP_KR Other 2>/dev/null || echo "分类文件生成中..."
 
       # 新增：AES加密步骤
       - name: Encrypt valid configs with AES
         working-directory: Files
         run: |
           python encrypt_service.py --password "${{ secrets.AES_PASSWORD }}"
-          python encrypt_service.py --password "${{ secrets.AES_PASSWORD }}" --input "../US_CA_configs.txt"
-          python encrypt_service.py --password "${{ secrets.AES_PASSWORD }}" --input "../EU_JP_KR_configs.txt"
-          python encrypt_service.py --password "${{ secrets.AES_PASSWORD }}" --input "../Other_configs.txt"
+          python encrypt_service.py --password "${{ secrets.AES_PASSWORD }}" --input "../US_CA_configs.txt" --output "../US_CA"
+          python encrypt_service.py --password "${{ secrets.AES_PASSWORD }}" --input "../EU_JP_KR_configs.txt" --output "../EU_JP_KR"
+          python encrypt_service.py --password "${{ secrets.AES_PASSWORD }}" --input "../Other_configs.txt" --output "../Other"
 
       - name: Commit and push changes
         uses: EndBug/add-and-commit@v9
@@ -112,9 +112,9 @@ jobs:
           # 复制加密的主文件并重命名为result
           cp ../All_Configs_Sub_valid.txt.encrypted ./result
           # 复制加密后的三个配置文件
-          cp ../US_CA_configs.txt.encrypted ./US_CA_configs.txt.encrypted 2>/dev/null || echo "US_CA_configs.txt.encrypted not found"
-          cp ../EU_JP_KR_configs.txt.encrypted ./EU_JP_KR_configs.txt.encrypted 2>/dev/null || echo "EU_JP_KR_configs.txt.encrypted not found"
-          cp ../Other_configs.txt.encrypted ./Other_configs.txt.encrypted 2>/dev/null || echo "Other_configs.txt.encrypted not found"
+          cp ../US_CA ./US_CA 2>/dev/null || echo "US_CA not found"
+          cp ../EU_JP_KR ./EU_JP_KR 2>/dev/null || echo "EU_JP_KR not found"
+          cp ../Other ./Other 2>/dev/null || echo "Other not found"
           git add .
           git commit -m "Update encrypted configs from GitHub Actions" || echo "No changes to commit"
           git pull --strategy-option=theirs && git push  # 优先使用远程版本
@@ -126,9 +126,9 @@ jobs:
           # 复制加密的主文件并重命名为result
           cp ../All_Configs_Sub_valid.txt.encrypted ./result
           # 复制加密后的三个配置文件
-          cp ../US_CA_configs.txt.encrypted ./US_CA_configs.txt.encrypted 2>/dev/null || echo "US_CA_configs.txt.encrypted not found"
-          cp ../EU_JP_KR_configs.txt.encrypted ./EU_JP_KR_configs.txt.encrypted 2>/dev/null || echo "EU_JP_KR_configs.txt.encrypted not found"
-          cp ../Other_configs.txt.encrypted ./Other_configs.txt.encrypted 2>/dev/null || echo "Other_configs.txt.encrypted not found"
+          cp ../US_CA ./US_CA 2>/dev/null || echo "US_CA not found"
+          cp ../EU_JP_KR ./EU_JP_KR 2>/dev/null || echo "EU_JP_KR not found"
+          cp ../Other ./Other 2>/dev/null || echo "Other not found"
           git add .
           git commit -m "Update encrypted configs from GitHub Actions" || echo "No changes to commit"
           git pull --strategy-option=theirs && git push  # 优先使用远程版本

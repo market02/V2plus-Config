@@ -56,16 +56,16 @@ jobs:
           python ip_detector_classifier.py
           echo "IP分类完成"
           echo "分类结果文件:"
-          ls -la US_CA EU_JP_KR Other 2>/dev/null || echo "分类文件生成中..."
+          ls -la US_CA_configs.txt EU_JP_KR_configs.txt Other_configs.txt 2>/dev/null || echo "分类文件未生成"
 
       # 新增：AES加密步骤
       - name: Encrypt valid configs with AES
         working-directory: Files
         run: |
           python encrypt_service.py --password "${{ secrets.AES_PASSWORD }}"
-          python encrypt_service.py --password "${{ secrets.AES_PASSWORD }}" --input "../US_CA_configs.txt" --output "../US_CA"
-          python encrypt_service.py --password "${{ secrets.AES_PASSWORD }}" --input "../EU_JP_KR_configs.txt" --output "../EU_JP_KR"
-          python encrypt_service.py --password "${{ secrets.AES_PASSWORD }}" --input "../Other_configs.txt" --output "../Other"
+          python encrypt_service.py --password "${{ secrets.AES_PASSWORD }}" --input "./US_CA_configs.txt" --output "../US_CA"
+          python encrypt_service.py --password "${{ secrets.AES_PASSWORD }}" --input "./EU_JP_KR_configs.txt" --output "../EU_JP_KR"
+          python encrypt_service.py --password "${{ secrets.AES_PASSWORD }}" --input "./Other_configs.txt" --output "../Other"
 
       - name: Commit and push changes
         uses: EndBug/add-and-commit@v9

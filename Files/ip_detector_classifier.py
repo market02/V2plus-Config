@@ -209,9 +209,14 @@ class IPGeoClassifier:
 
 def main():
     # 固定使用All_Configs_Sub_valid.txt
-    config_file = "All_Configs_Sub_valid.txt"
-    output_dir = "."
-    
+    # 兼容GitHub Actions中 working-directory=Files 的情况：
+    # 从脚本所在目录的上一级目录读取有效配置文件，将分类结果写入当前脚本目录（Files）
+    import os
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    parent_dir = os.path.dirname(base_dir)
+    config_file = os.path.join(parent_dir, "All_Configs_Sub_valid.txt")
+    output_dir = base_dir
+
     if not os.path.exists(config_file):
         print(f"文件不存在: {config_file}")
         print("请先运行 connectivity_checker.py 生成有效配置文件")

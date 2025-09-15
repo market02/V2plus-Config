@@ -163,7 +163,7 @@ def main():
     protocols = ["vmess", "vless", "trojan", "ss", "ssr", "hy2"]
     links = [
         "https://raw.githubusercontent.com/ALIILAPRO/v2rayNG-Config/main/sub.txt",
-        "https://raw.githubusercontent.com/mfuu/v2ray/master/v2ray",
+        # "https://raw.githubusercontent.com/mfuu/v2ray/master/v2ray",
         # "https://raw.githubusercontent.com/ts-sf/fly/main/v2",
         # "https://raw.githubusercontent.com/aiboboxx/v2rayfree/main/v2",
         # "https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/refs/heads/main/app/sub.txt",
@@ -175,8 +175,8 @@ def main():
         # "https://raw.githubusercontent.com/Surfboardv2ray/TGParse/main/splitted/mixed"
     ]
     dir_links = [
-        "https://raw.githubusercontent.com/itsyebekhe/PSG/main/lite/subscriptions/xray/normal/mix",
-        "https://raw.githubusercontent.com/HosseinKoofi/GO_V2rayCollector/main/mixed_iran.txt",
+        # "https://raw.githubusercontent.com/itsyebekhe/PSG/main/lite/subscriptions/xray/normal/mix",
+        # "https://raw.githubusercontent.com/HosseinKoofi/GO_V2rayCollector/main/mixed_iran.txt",
         # "https://raw.githubusercontent.com/arshiacomplus/v2rayExtractor/refs/heads/main/mix/sub.html",
         # "https://raw.githubusercontent.com/IranianCypherpunks/sub/main/config",
         # "https://raw.githubusercontent.com/Rayan-Config/C-Sub/refs/heads/main/configs/proxy.txt",

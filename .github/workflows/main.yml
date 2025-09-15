@@ -15,7 +15,7 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 60 # 60 分钟后强制超时，旧任务会被取消
+    timeout-minutes: 120 # 120 分钟后强制超时，旧任务会被取消
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -41,6 +41,8 @@ jobs:
       # 新增：连通性检测和清理无效配置
       - name: Check connectivity and clean invalid configs
         working-directory: Files
+        env:
+          CONNECT_TIMEOUT: "10"
         run: |
           echo "开始连通性检测..."
           python connectivity_checker.py

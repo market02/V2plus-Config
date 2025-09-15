@@ -73,17 +73,15 @@ def filter_for_protocols(data, protocols, max_configs):
     seen_configs = set()      # 原有的完全匹配去重
     seen_endpoints = set()    # 新增：endpoint去重 (protocol+host+port)
     config_count = 0
-    
+
     def get_endpoint_key(config_line):
         """提取节点的endpoint标识：protocol+host+port"""
         import re
         try:
-            # 统一的正则匹配模式
             patterns = [
                 (r'(vless|vmess|trojan)://[^@]*@([^:/]+):(\d+)', lambda m: f"{m.group(1)}_{m.group(2)}_{m.group(3)}"),
                 (r'(ss|ssr)://[^@]*@([^:/]+):(\d+)', lambda m: f"{m.group(1)}_{m.group(2)}_{m.group(3)}")
             ]
-            
             for pattern, formatter in patterns:
                 match = re.search(pattern, config_line)
                 if match:
@@ -91,23 +89,19 @@ def filter_for_protocols(data, protocols, max_configs):
         except:
             pass
         return None
-    
-    # Process each decoded content
+
     for content in data:
         if config_count >= max_configs:
             break
-        if content and content.strip():  # Skip empty content
+        if content and content.strip():
             lines = content.strip().split('\n')
             for line in lines:
                 if config_count >= max_configs:
                     break
                 line = line.strip()
-                if line.startswith('#'):
-                    filtered_data.append(line)  # 只保留注释
-                elif any(protocol in line for protocol in protocols) and line.strip():
-                    # 第一层：完全匹配去重（保留原逻辑）
+                # 仅保留配置行，不保留来源注释
+                if any(p in line for p in protocols) and line:
                     if line not in seen_configs:
-                        # 第二层：endpoint去重（新增逻辑）
                         endpoint_key = get_endpoint_key(line)
                         if not endpoint_key or endpoint_key not in seen_endpoints:
                             filtered_data.append(line)
@@ -141,7 +135,8 @@ def load_links_from_resources():
     return links, dir_links
 
 def main():
-    protocols = ["vmess", "vless", "trojan", "ss", "ssr", "hy2", "tuic", "warp://"]
+    # 生成阶段协议集与检测对齐：不包含 tuic/warp
+    protocols = ["vmess", "vless", "trojan", "ss", "ssr", "hy2"]
     
     # 从外部文件加载链接
     links, dir_links = load_links_from_resources()
@@ -165,7 +160,7 @@ def main():
 
     print("Starting to fetch and process configs...")
     
-    protocols = ["vmess", "vless", "trojan", "ss", "ssr", "hy2", "tuic", "warp://"]
+    protocols = ["vmess", "vless", "trojan", "ss", "ssr", "hy2"]
     links = [
         "https://raw.githubusercontent.com/ALIILAPRO/v2rayNG-Config/main/sub.txt",
         #"https://raw.githubusercontent.com/mfuu/v2ray/master/v2ray",

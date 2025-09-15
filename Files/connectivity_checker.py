@@ -11,30 +11,36 @@ import json
 from datetime import datetime
 
 class V2rayConfigChecker:
-    def __init__(self, timeout=5):
+    def __init__(self, timeout=10):
         self.timeout = timeout
         self.valid_configs = []
         self.invalid_configs = []
     
     def is_base64(self, s):
-        """判断字符串是否为有效的base64编码"""
+        """判断字符串是否为有效的base64编码（兼容URL-safe）"""
         try:
             if isinstance(s, str):
-                # 检查字符串是否只包含base64字符
-                if re.match('^[A-Za-z0-9+/]*={0,2}$', s):
-                    base64.b64decode(s)
+                # 允许 URL-safe 的 - 和 _
+                if re.match('^[A-Za-z0-9+/_-]*={0,2}$', s):
+                    # 尝试常规解码，如果失败再由 decode_base64_safely 处理
+                    base64.b64decode(s + '=' * (-len(s) % 4))
                     return True
             return False
         except Exception:
             return False
-    
+
     def decode_base64_safely(self, data):
-        """安全地解码base64数据"""
+        """安全地解码base64数据（兼容URL-safe）"""
         try:
-            return base64.b64decode(data).decode('utf-8')
-        except Exception as e:
-            print(f"Base64解码失败: {e}")
-            return None
+            # 优先常规 base64
+            return base64.b64decode(data + '=' * (-len(data) % 4)).decode('utf-8', errors='strict')
+        except Exception:
+            try:
+                # 失败则尝试 URL-safe base64
+                return base64.urlsafe_b64decode(data + '=' * (-len(data) % 4)).decode('utf-8', errors='strict')
+            except Exception as e:
+                print(f"Base64解码失败: {e}")
+                return None
     
     def clean_config_line(self, config_line):
         """清理配置行，去除脏字符，返回清理后的配置行"""
@@ -477,16 +483,26 @@ class V2rayConfigChecker:
             return None
     
     def test_tcp_connectivity(self, host, port):
-        """测试TCP端口连通性"""
+        """测试TCP端口连通性（同时尝试 IPv4/IPv6）"""
         try:
-            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            sock.settimeout(self.timeout)
-            result = sock.connect_ex((host, port))
-            sock.close()
-            return result == 0
+            # 解析所有可用地址（IPv4/IPv6）
+            addrinfos = socket.getaddrinfo(host, port, 0, socket.SOCK_STREAM)
         except Exception as e:
-            print(f"TCP连接测试失败 {host}:{port} - {e}")
+            print(f"解析地址失败 {host}:{port} - {e}")
             return False
+
+        for af, socktype, proto, _, sockaddr in addrinfos:
+            try:
+                sock = socket.socket(af, socktype, proto)
+                sock.settimeout(self.timeout)
+                result = sock.connect_ex(sockaddr)
+                sock.close()
+                if result == 0:
+                    return True
+            except Exception as e:
+                # 尝试下一个地址族
+                continue
+        return False
     
     def test_config_connectivity(self, config_info):
         """测试单个配置的连通性"""
@@ -520,6 +536,7 @@ class V2rayConfigChecker:
         
         valid_lines = []
         invalid_count = 0
+        seen_comments = set()  # 用于去重注释行
         
         for i, line in enumerate(lines, 1):
             line = line.strip()
@@ -527,8 +544,10 @@ class V2rayConfigChecker:
             # 跳过注释行和空行
             if not line.strip():  # 跳过空行
                 continue
-            if line.startswith('#'):  # 保留注释
-                valid_lines.append(line + '\n')
+            if line.startswith('#'):  # 去重保留注释
+                if line not in seen_comments:
+                    seen_comments.add(line)
+                    valid_lines.append(line + '\n')
                 continue
             
             # 清理配置行
@@ -599,7 +618,13 @@ class V2rayConfigChecker:
         print(f"  无效配置: {len(self.invalid_configs)}")
 
 def main():
-    checker = V2rayConfigChecker(timeout=5)
+    timeout_env = os.getenv("CONNECT_TIMEOUT", "").strip()
+    try:
+        timeout = int(timeout_env) if timeout_env else 10
+    except ValueError:
+        timeout = 10
+
+    checker = V2rayConfigChecker(timeout=timeout)
     
     if len(sys.argv) > 1:
         # 检查指定文件

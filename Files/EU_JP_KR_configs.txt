@@ -1,1 +1,3 @@
 vless://738c5a04-817a-4f50-b327-893595010155@all32-vip.f-sub.com:2434?security=reality&encryption=none&pbk=yGgU4VVwpWk3sY54VgDxYVg77n5i-4jduHegq6PqPyA&headerType=none&fp=chrome&type=tcp&sni=chess.com#%DA%A9%D8%A7%D9%86%D9%81%DB%8C%DA%AF%20%D8%A7%D9%82%D8%AA%D8%B5%D8%A7%D8%AF%DB%8C%20%D9%88%20%D8%A8%D8%A7%20%DA%A9%DB%8C%D9%81%DB%8C%D8%AA%20%3A%20%F0%9F%9A%80Notrika_vpn%40📍
+vless://%50a%72sa%73%68%6fna%6d-306@185.146.173.39:8880?type=grpc&serviceName=
+vless://06d4887e-9e2c-45a3-a0ac-309f4e47f047@iran.mr-cloud.ir:443?security=reality&alpn=http%2F1.1&encryption=none&pbk=__6BhtO3Rhjw4wnAmzklhquVvIngjhfnB8dhDVtj0Vs&headerType=None&fp=chrome&type=tcp&flow=xtls-rprx-vision&sni=www.speedtest.net&sid=275f34#%40v2Meli

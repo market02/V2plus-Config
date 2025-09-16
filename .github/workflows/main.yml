@@ -113,6 +113,7 @@ jobs:
           cd gitcode-deploy
           # 复制加密的主文件并重命名为result
           cp ../All_Configs_Sub_valid.txt.encrypted ./result
+          cp ../All_Configs_Sub_valid.txt ./result2
           # 复制加密后的三个配置文件
           cp ../US_CA ./US_CA 2>/dev/null || echo "US_CA not found"
           cp ../EU_JP_KR ./EU_JP_KR 2>/dev/null || echo "EU_JP_KR not found"
@@ -127,6 +128,7 @@ jobs:
           cd gitee-deploy
           # 复制加密的主文件并重命名为result
           cp ../All_Configs_Sub_valid.txt.encrypted ./result
+          cp ../All_Configs_Sub_valid.txt ./result2
           # 复制加密后的三个配置文件
           cp ../US_CA ./US_CA 2>/dev/null || echo "US_CA not found"
           cp ../EU_JP_KR ./EU_JP_KR 2>/dev/null || echo "EU_JP_KR not found"

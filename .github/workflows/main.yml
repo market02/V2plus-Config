@@ -38,6 +38,11 @@ jobs:
           python app.py
         #python sort.py
 
+      - name: Detect the URL and write it back
+        working-directory: Files
+        run: |
+          python detect_url.py
+
       # 新增：连通性检测和清理无效配置
       - name: Check connectivity and clean invalid configs
         working-directory: Files
@@ -48,7 +53,7 @@ jobs:
           python connectivity_checker.py
           echo "连通性检测完成"
 
-# 新增：IP地理位置分类步骤
+      # 新增：IP地理位置分类步骤
       - name: Classify configs by IP geolocation
         working-directory: Files
         run: |
@@ -63,9 +68,12 @@ jobs:
         working-directory: Files
         run: |
           python encrypt_service.py --password "${{ secrets.AES_PASSWORD }}"
-          python encrypt_service.py --password "${{ secrets.AES_PASSWORD }}" --input "./US_CA_configs.txt" --output "../US_CA"
-          python encrypt_service.py --password "${{ secrets.AES_PASSWORD }}" --input "./EU_JP_KR_configs.txt" --output "../EU_JP_KR"
-          python encrypt_service.py --password "${{ secrets.AES_PASSWORD }}" --input "./Other_configs.txt" --output "../Other"
+          # 确保目标目录存在
+          mkdir -p ../US_CA ../EU_JP_KR ../Other
+          # 将各区域明文加密后写入对应目录中的固定文件名
+          python encrypt_service.py --password "${{ secrets.AES_PASSWORD }}" --input "./US_CA_configs.txt" --output "../US_CA/Area_node"
+          python encrypt_service.py --password "${{ secrets.AES_PASSWORD }}" --input "./EU_JP_KR_configs.txt" --output "../EU_JP_KR/Area_node"
+          python encrypt_service.py --password "${{ secrets.AES_PASSWORD }}" --input "./Other_configs.txt" --output "../Other/Area_node"
 
       - name: Commit and push changes
         uses: EndBug/add-and-commit@v9
@@ -113,11 +121,10 @@ jobs:
           cd gitcode-deploy
           # 复制加密的主文件并重命名为result
           cp ../All_Configs_Sub_valid.txt.encrypted ./result
-          cp ../All_Configs_Sub_valid.txt ./result2
-          # 复制加密后的三个配置文件
-          cp ../US_CA ./US_CA 2>/dev/null || echo "US_CA not found"
-          cp ../EU_JP_KR ./EU_JP_KR 2>/dev/null || echo "EU_JP_KR not found"
-          cp ../Other ./Other 2>/dev/null || echo "Other not found"
+          # 复制加密后的三个配置文件（注意递归）
+          cp -r ../US_CA ./US_CA 2>/dev/null || echo "US_CA not found"
+          cp -r ../EU_JP_KR ./EU_JP_KR 2>/dev/null || echo "EU_JP_KR not found"
+          cp -r ../Other ./Other 2>/dev/null || echo "Other not found"
           git add .
           git commit -m "Update encrypted configs from GitHub Actions" || echo "No changes to commit"
           git pull --strategy-option=theirs && git push  # 优先使用远程版本
@@ -129,10 +136,10 @@ jobs:
           # 复制加密的主文件并重命名为result
           cp ../All_Configs_Sub_valid.txt.encrypted ./result
           cp ../All_Configs_Sub_valid.txt ./result2
-          # 复制加密后的三个配置文件
-          cp ../US_CA ./US_CA 2>/dev/null || echo "US_CA not found"
-          cp ../EU_JP_KR ./EU_JP_KR 2>/dev/null || echo "EU_JP_KR not found"
-          cp ../Other ./Other 2>/dev/null || echo "Other not found"
+          # 复制加密后的三个配置文件（注意递归）
+          cp -r ../US_CA ./US_CA 2>/dev/null || echo "US_CA not found"
+          cp -r ../EU_JP_KR ./EU_JP_KR 2>/dev/null || echo "EU_JP_KR not found"
+          cp -r ../Other ./Other 2>/dev/null || echo "Other not found"
           git add .
           git commit -m "Update encrypted configs from GitHub Actions" || echo "No changes to commit"
           git pull --strategy-option=theirs && git push  # 优先使用远程版本

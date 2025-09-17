@@ -63,7 +63,9 @@ jobs:
         working-directory: Files
         run: |
           python encrypt_service.py --password "${{ secrets.AES_PASSWORD }}"
-          # 确保目标目录存在
+          # 清理与目录名冲突的同名文件（若存在）
+          rm -f ../US_CA ../EU_JP_KR ../Other || true
+          # 确保目标目录存在（现在能成功创建）
           mkdir -p ../US_CA ../EU_JP_KR ../Other
           # 将各区域明文加密后写入对应目录中的固定文件名
           python encrypt_service.py --password "${{ secrets.AES_PASSWORD }}" --input "./US_CA_configs.txt" --output "../US_CA/Area_node"

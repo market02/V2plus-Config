@@ -38,11 +38,6 @@ jobs:
           python app.py
         #python sort.py
 
-      - name: Detect the URL and write it back
-        working-directory: Files
-        run: |
-          python detect_url.py
-
       # 新增：连通性检测和清理无效配置
       - name: Check connectivity and clean invalid configs
         working-directory: Files

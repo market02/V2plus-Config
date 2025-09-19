@@ -15,7 +15,7 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 120 # 120 分钟后强制超时，旧任务会被取消
+    timeout-minutes: 120 # 120 分钟后强制超时
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -36,9 +36,9 @@ jobs:
         working-directory: Files
         run: |
           python app.py
-        #python sort.py
+          # python sort.py
 
-      # 新增：连通性检测和清理无效配置
+      # 连通性检测和清理无效配置
       - name: Check connectivity and clean invalid configs
         working-directory: Files
         env:
@@ -48,19 +48,25 @@ jobs:
           python connectivity_checker.py
           echo "连通性检测完成"
 
-      # 新增：AES加密步骤
+      # 加密：主文件必做，区域文件存在才做
       - name: Encrypt valid configs with AES
         working-directory: Files
         run: |
+          # 主文件加密（始终存在）
           python encrypt_service.py --password "${{ secrets.AES_PASSWORD }}"
-          # 清理与目录名冲突的同名文件（若存在）
-          # rm -f ../US_CA ../EU_JP_KR ../Other || true
-          # 确保目标目录存在（现在能成功创建）
-          # mkdir -p ../US_CA ../EU_JP_KR ../Other
-          # 将各区域明文加密后写入对应目录中的固定文件名
-          python encrypt_service.py --password "${{ secrets.AES_PASSWORD }}" --input "./US_CA.txt" --output "../US_CA"
-          python encrypt_service.py --password "${{ secrets.AES_PASSWORD }}" --input "./EU_JP_KR.txt" --output "../EU_JP_KR"
-          python encrypt_service.py --password "${{ secrets.AES_PASSWORD }}" --input "./Other.txt" --output "../Other"
+
+          # 区域文件：存在才加密
+          [[ -f US_CA.txt ]] && python encrypt_service.py \
+            --password "${{ secrets.AES_PASSWORD }}" \
+            --input "./US_CA.txt" --output "../US_CA" || true
+
+          [[ -f EU_JP_KR.txt ]] && python encrypt_service.py \
+            --password "${{ secrets.AES_PASSWORD }}" \
+            --input "./EU_JP_KR.txt" --output "../EU_JP_KR" || true
+
+          [[ -f Other.txt ]] && python encrypt_service.py \
+            --password "${{ secrets.AES_PASSWORD }}" \
+            --input "./Other.txt" --output "../Other" || true
 
       - name: Commit and push changes
         uses: EndBug/add-and-commit@v9
@@ -73,7 +79,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # 配置多个 SSH 密钥
+      # 多密钥 SSH 配置
       - name: Setup SSH Agent for multiple keys
         uses: webfactory/ssh-agent@v0.9.0
         with:
@@ -86,7 +92,6 @@ jobs:
           ssh-keyscan -H gitcode.com >> ~/.ssh/known_hosts
           ssh-keyscan -H gitee.com >> ~/.ssh/known_hosts
 
-      # 添加 SSH 调试步骤
       - name: Debug SSH connections
         run: |
           echo "Testing SSH connection to gitcode.com..."
@@ -96,38 +101,34 @@ jobs:
           echo "Listing SSH keys:"
           ssh-add -l
 
+      # 部署到 GitCode & Gitee
       - name: Configure Git and Deploy to Remote Repositories
         run: |
-          # 配置 Git 全局设置
           git config --global user.name "amessboy"
           git config --global user.email "v9736982301@outlook.com"
           git config --global init.defaultBranch main
 
-          # 部署到 GitCode
+          # ---------- GitCode ----------
           git clone git@gitcode.com:amessboy/DeployData.git gitcode-deploy
           cd gitcode-deploy
-          # 复制加密的主文件并重命名为result
           cp ../All_Configs_Sub_valid.txt.encrypted ./result
-          # 复制加密后的三个配置文件（注意递归）
-          cp -r ../US_CA ./US_CA 2>/dev/null || echo "US_CA not found"
-          cp -r ../EU_JP_KR ./EU_JP_KR 2>/dev/null || echo "EU_JP_KR not found"
-          cp -r ../Other ./Other 2>/dev/null || echo "Other not found"
+          [[ -d ../US_CA ]] && cp -r ../US_CA ./US_CA || true
+          [[ -d ../EU_JP_KR ]] && cp -r ../EU_JP_KR ./EU_JP_KR || true
+          [[ -d ../Other ]] && cp -r ../Other ./Other || true
           git add .
           git commit -m "Update encrypted configs from GitHub Actions" || echo "No changes to commit"
-          git pull --strategy-option=theirs && git push  # 优先使用远程版本
+          git pull --strategy-option=theirs && git push
           cd ..
 
-          # 部署到 Gitee
+          # ---------- Gitee ----------
           git clone git@gitee.com:amessboy/DeployData.git gitee-deploy
           cd gitee-deploy
-          # 复制加密的主文件并重命名为result
           cp ../All_Configs_Sub_valid.txt.encrypted ./result
           cp ../All_Configs_Sub_valid.txt ./result2
-          # 复制加密后的三个配置文件（注意递归）
-          cp -r ../US_CA ./US_CA 2>/dev/null || echo "US_CA not found"
-          cp -r ../EU_JP_KR ./EU_JP_KR 2>/dev/null || echo "EU_JP_KR not found"
-          cp -r ../Other ./Other 2>/dev/null || echo "Other not found"
+          [[ -d ../US_CA ]] && cp -r ../US_CA ./US_CA || true
+          [[ -d ../EU_JP_KR ]] && cp -r ../EU_JP_KR ./EU_JP_KR || true
+          [[ -d ../Other ]] && cp -r ../Other ./Other || true
           git add .
           git commit -m "Update encrypted configs from GitHub Actions" || echo "No changes to commit"
-          git pull --strategy-option=theirs && git push  # 优先使用远程版本
+          git pull --strategy-option=theirs && git push
           cd ..

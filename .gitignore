@@ -4,6 +4,7 @@ __pycache__/
 *$py.class
 # C extensions
 *.so
+*.vs
 
 # Distribution / packaging
 .Python
@@ -213,3 +214,12 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 
+/US_CA
+/US_CA.txt
+/All_Configs_Sub.txt
+/All_Configs_Sub_valid.txt
+/All_Configs_Sub_valid.txt.encrypted
+/EU_JP_KR
+/EU_JP_KR.txt
+/Other
+/Other.txt

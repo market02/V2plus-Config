@@ -12,6 +12,7 @@ import json
 from datetime import datetime
 from encrypt_service import EncryptService
 
+
 class V2rayConfigChecker:
     def __init__(self, timeout=10):
         self.timeout = timeout
@@ -20,15 +21,15 @@ class V2rayConfigChecker:
         # 并行阶段用到的缓存，以降低 DNS/Geo 查询开销
         self._dns_cache = {}
         self._geo_cache = {}
-    
+
     def is_base64(self, s):
         """判断字符串是否为有效的base64编码（兼容URL-safe）"""
         try:
             if isinstance(s, str):
                 # 允许 URL-safe 的 - 和 _
-                if re.match('^[A-Za-z0-9+/_-]*={0,2}$', s):
+                if re.match("^[A-Za-z0-9+/_-]*={0,2}$", s):
                     # 尝试常规解码，如果失败再由 decode_base64_safely 处理
-                    base64.b64decode(s + '=' * (-len(s) % 4))
+                    base64.b64decode(s + "=" * (-len(s) % 4))
                     return True
             return False
         except Exception:
@@ -38,58 +39,62 @@ class V2rayConfigChecker:
         """安全地解码base64数据（兼容URL-safe）"""
         try:
             # 优先常规 base64
-            return base64.b64decode(data + '=' * (-len(data) % 4)).decode('utf-8', errors='strict')
+            return base64.b64decode(data + "=" * (-len(data) % 4)).decode(
+                "utf-8", errors="strict"
+            )
         except Exception:
             try:
                 # 失败则尝试 URL-safe base64
-                return base64.urlsafe_b64decode(data + '=' * (-len(data) % 4)).decode('utf-8', errors='strict')
+                return base64.urlsafe_b64decode(data + "=" * (-len(data) % 4)).decode(
+                    "utf-8", errors="strict"
+                )
             except Exception as e:
                 print(f"Base64解码失败: {e}")
                 return None
-    
+
     def clean_config_line(self, config_line):
         """清理配置行，去除脏字符，返回清理后的配置行"""
         config_line = config_line.strip()
-        
+
         # 定义支持的协议列表
-        protocols = ['vless://', 'vmess://', 'trojan://', 'ss://', 'ssr://', 'hy2://']
-        
+        protocols = ["vless://", "vmess://", "trojan://", "ss://", "ssr://", "hy2://"]
+
         # 查找协议并剔除脏字符
         for protocol in protocols:
             protocol_index = config_line.find(protocol)
             if protocol_index != -1:
                 # 找到协议，剔除前面的脏字符
                 return config_line[protocol_index:]
-        
+
         # 如果没有找到任何协议，返回原始行
-        return config_line
+        return None
 
     def parse_config_line(self, config_line):
         """解析V2ray配置行，提取IP、端口等信息"""
         config_line = config_line.strip()
-        
+
         # 解析不同协议的配置
-        if config_line.startswith('vless://'):
+        if config_line.startswith("vless://"):
             return self.parse_vless(config_line)
-        elif config_line.startswith('vmess://'):
+        elif config_line.startswith("vmess://"):
             return self.parse_vmess(config_line)
-        elif config_line.startswith('trojan://'):
+        elif config_line.startswith("trojan://"):
             return self.parse_trojan(config_line)
-        elif config_line.startswith('ss://'):
+        elif config_line.startswith("ss://"):
             return self.parse_ss(config_line)
-        elif config_line.startswith('ssr://'):
+        elif config_line.startswith("ssr://"):
             return self.parse_ssr(config_line)
-        elif config_line.startswith('hy2://'):
+        elif config_line.startswith("hy2://"):
             return self.parse_hy2(config_line)
-        
+
         return None
-    
+
     def parse_vless(self, config):
         """解析VLESS配置"""
         try:
             # vless://uuid@host:port?params#name 或 vless://base64_encoded
             vless_data = config[8:]  # 去掉"vless://"
-            
+
             # 检查是否为base64编码
             if self.is_base64(vless_data):
                 # 解码base64
@@ -99,61 +104,61 @@ class V2rayConfigChecker:
                         # 尝试解析JSON格式（类似vmess）
                         vless_config = json.loads(decoded_data)
                         return {
-                            'protocol': 'vless',
-                            'host': vless_config.get('add', ''),
-                            'port': int(vless_config.get('port', 0)),
-                            'original': config
+                            "protocol": "vless",
+                            "host": vless_config.get("add", ""),
+                            "port": int(vless_config.get("port", 0)),
+                            "original": config,
                         }
                     except json.JSONDecodeError:
                         # 如果不是JSON，尝试解析为普通格式
-                        url_part = decoded_data.split('?')[0].split('#')[0]
-                        if '@' in url_part:
-                            match = re.match(r'[^@]+@([^:]+):(\d+)', url_part)
+                        url_part = decoded_data.split("?")[0].split("#")[0]
+                        if "@" in url_part:
+                            match = re.match(r"[^@]+@([^:]+):(\d+)", url_part)
                             if match:
                                 host, port = match.groups()
                                 return {
-                                    'protocol': 'vless',
-                                    'host': host,
-                                    'port': int(port),
-                                    'original': config
+                                    "protocol": "vless",
+                                    "host": host,
+                                    "port": int(port),
+                                    "original": config,
                                 }
                         else:
-                            match = re.match(r'([^:]+):(\d+)', url_part)
+                            match = re.match(r"([^:]+):(\d+)", url_part)
                             if match:
                                 host, port = match.groups()
                                 return {
-                                    'protocol': 'vless',
-                                    'host': host,
-                                    'port': int(port),
-                                    'original': config
+                                    "protocol": "vless",
+                                    "host": host,
+                                    "port": int(port),
+                                    "original": config,
                                 }
             else:
                 # 直接解析非base64格式
-                url_part = vless_data.split('?')[0].split('#')[0]
-                if '@' in url_part:
-                    match = re.match(r'[^@]+@([^:]+):(\d+)', url_part)
+                url_part = vless_data.split("?")[0].split("#")[0]
+                if "@" in url_part:
+                    match = re.match(r"[^@]+@([^:]+):(\d+)", url_part)
                 else:
-                    match = re.match(r'([^:]+):(\d+)', url_part)
-                
+                    match = re.match(r"([^:]+):(\d+)", url_part)
+
                 if match:
                     host, port = match.groups()
                     return {
-                        'protocol': 'vless',
-                        'host': host,
-                        'port': int(port),
-                        'original': config
+                        "protocol": "vless",
+                        "host": host,
+                        "port": int(port),
+                        "original": config,
                     }
         except Exception as e:
             print(f"解析VLESS配置失败: {e}")
         return None
-    
+
     def parse_vmess(self, config):
         """解析VMess配置"""
         try:
             # vmess://base64_encoded_json 或 vmess://uuid@host:port 或 vmess://host:port
-            if '://' in config:
+            if "://" in config:
                 vmess_data = config[8:]  # 去掉"vmess://"
-                
+
                 # 检查是否为base64编码
                 if self.is_base64(vmess_data):
                     decoded_data = self.decode_base64_safely(vmess_data)
@@ -162,41 +167,41 @@ class V2rayConfigChecker:
                             # 解析JSON
                             vmess_config = json.loads(decoded_data)
                             return {
-                                'protocol': 'vmess',
-                                'host': vmess_config.get('add', ''),
-                                'port': int(vmess_config.get('port', 0)),
-                                'original': config
+                                "protocol": "vmess",
+                                "host": vmess_config.get("add", ""),
+                                "port": int(vmess_config.get("port", 0)),
+                                "original": config,
                             }
                         except json.JSONDecodeError as e:
                             print(f"VMess JSON解析失败: {e}")
                             return None
                 else:
                     # 解析非base64格式
-                    url_part = vmess_data.split('?')[0].split('#')[0]
-                    if '@' in url_part:
-                        match = re.match(r'[^@]+@([^:]+):(\d+)', url_part)
+                    url_part = vmess_data.split("?")[0].split("#")[0]
+                    if "@" in url_part:
+                        match = re.match(r"[^@]+@([^:]+):(\d+)", url_part)
                     else:
                         # host:port 格式
-                        match = re.match(r'([^:]+):(\d+)', url_part)
-                    
+                        match = re.match(r"([^:]+):(\d+)", url_part)
+
                     if match:
                         host, port = match.groups()
                         return {
-                            'protocol': 'vmess',
-                            'host': host,
-                            'port': int(port),
-                            'original': config
+                            "protocol": "vmess",
+                            "host": host,
+                            "port": int(port),
+                            "original": config,
                         }
         except Exception as e:
             print(f"解析VMess配置失败: {e}")
         return None
-    
+
     def parse_trojan(self, config):
         """解析Trojan配置"""
         try:
             # trojan://password@host:port?params#name 或 trojan://base64_encoded
             trojan_data = config[9:]  # 去掉"trojan://"
-            
+
             # 检查是否为base64编码
             if self.is_base64(trojan_data):
                 # 解码base64
@@ -206,171 +211,171 @@ class V2rayConfigChecker:
                         # 尝试解析JSON格式
                         trojan_config = json.loads(decoded_data)
                         return {
-                            'protocol': 'trojan',
-                            'host': trojan_config.get('add', ''),
-                            'port': int(trojan_config.get('port', 0)),
-                            'password': trojan_config.get('password', ''),
-                            'name': trojan_config.get('ps', ''),
-                            'original': config
+                            "protocol": "trojan",
+                            "host": trojan_config.get("add", ""),
+                            "port": int(trojan_config.get("port", 0)),
+                            "password": trojan_config.get("password", ""),
+                            "name": trojan_config.get("ps", ""),
+                            "original": config,
                         }
                     except json.JSONDecodeError:
                         # 如果不是JSON，尝试解析为普通格式
-                        url_part = decoded_data.split('?')[0].split('#')[0]
-                        if '@' in url_part:
+                        url_part = decoded_data.split("?")[0].split("#")[0]
+                        if "@" in url_part:
                             # password@host:port 格式
-                            match = re.match(r'([^@]+)@([^:]+):(\d+)', url_part)
+                            match = re.match(r"([^@]+)@([^:]+):(\d+)", url_part)
                             if match:
                                 password, host, port = match.groups()
                                 return {
-                                    'protocol': 'trojan',
-                                    'host': host,
-                                    'port': int(port),
-                                    'password': password,
-                                    'original': config
+                                    "protocol": "trojan",
+                                    "host": host,
+                                    "port": int(port),
+                                    "password": password,
+                                    "original": config,
                                 }
                         else:
                             # host:port 格式
-                            match = re.match(r'([^:]+):(\d+)', url_part)
+                            match = re.match(r"([^:]+):(\d+)", url_part)
                             if match:
                                 host, port = match.groups()
                                 return {
-                                    'protocol': 'trojan',
-                                    'host': host,
-                                    'port': int(port),
-                                    'password': '',
-                                    'original': config
+                                    "protocol": "trojan",
+                                    "host": host,
+                                    "port": int(port),
+                                    "password": "",
+                                    "original": config,
                                 }
             else:
                 # 直接解析非base64格式
                 # 先分离出参数和fragment部分
-                url_part = trojan_data.split('?')[0].split('#')[0]
-                
-                if '@' in url_part:
+                url_part = trojan_data.split("?")[0].split("#")[0]
+
+                if "@" in url_part:
                     # password@host:port 格式
-                    match = re.match(r'([^@]+)@([^:]+):(\d+)', url_part)
+                    match = re.match(r"([^@]+)@([^:]+):(\d+)", url_part)
                     if match:
                         password, host, port = match.groups()
                         return {
-                            'protocol': 'trojan',
-                            'host': host,
-                            'port': int(port),
-                            'password': password,
-                            'original': config
+                            "protocol": "trojan",
+                            "host": host,
+                            "port": int(port),
+                            "password": password,
+                            "original": config,
                         }
                 else:
                     # host:port 格式
-                    match = re.match(r'([^:]+):(\d+)', url_part)
+                    match = re.match(r"([^:]+):(\d+)", url_part)
                     if match:
                         host, port = match.groups()
                         return {
-                            'protocol': 'trojan',
-                            'host': host,
-                            'port': int(port),
-                            'password': '',
-                            'original': config
+                            "protocol": "trojan",
+                            "host": host,
+                            "port": int(port),
+                            "password": "",
+                            "original": config,
                         }
         except Exception as e:
             print(f"解析Trojan配置失败: {e}")
         return None
-    
+
     def parse_ss(self, config):
         """解析Shadowsocks配置"""
         try:
             # ss://base64@host:port 或 ss://method:password@host:port 或 ss://base64_encoded 或 ss://base64_encoded_data#fragment
             ss_data = config[5:]  # 去掉"ss://"
-            
+
             # 先移除fragment部分（#后面的内容）
-            fragment = ''
-            if '#' in ss_data:
-                ss_data, fragment = ss_data.split('#', 1)
-            
+            fragment = ""
+            if "#" in ss_data:
+                ss_data, fragment = ss_data.split("#", 1)
+
             # 情况1: ss://base64@host:port 或 ss://method:password@host:port
-            if '@' in ss_data:
-                auth_part, server_part = ss_data.split('@', 1)
-                
+            if "@" in ss_data:
+                auth_part, server_part = ss_data.split("@", 1)
+
                 # 检查auth_part是否为base64
                 if self.is_base64(auth_part):
                     decoded_auth = self.decode_base64_safely(auth_part)
-                    if decoded_auth and ':' in decoded_auth:
-                        method, password = decoded_auth.split(':', 1)
+                    if decoded_auth and ":" in decoded_auth:
+                        method, password = decoded_auth.split(":", 1)
                     else:
-                        method, password = '', decoded_auth or ''
+                        method, password = "", decoded_auth or ""
                 else:
                     # 直接的 method:password 格式
-                    if ':' in auth_part:
-                        method, password = auth_part.split(':', 1)
+                    if ":" in auth_part:
+                        method, password = auth_part.split(":", 1)
                     else:
-                        method, password = '', auth_part
-                
+                        method, password = "", auth_part
+
                 # 解析服务器部分
-                if ':' in server_part:
-                    host, port = server_part.rsplit(':', 1)
+                if ":" in server_part:
+                    host, port = server_part.rsplit(":", 1)
                     # 移除可能的参数部分
-                    port = port.split('?')[0]
+                    port = port.split("?")[0]
                     try:
                         port_int = int(port)
                         return {
-                            'protocol': 'ss',
-                            'host': host,
-                            'port': port_int,
-                            'method': method,
-                            'password': password,
-                            'original': config
+                            "protocol": "ss",
+                            "host": host,
+                            "port": port_int,
+                            "method": method,
+                            "password": password,
+                            "original": config,
                         }
                     except ValueError:
                         print(f"端口转换失败: {port}")
                         return None
-            
+
             # 情况2: ss://base64_encoded（整个连接信息都是base64编码）
             else:
                 if self.is_base64(ss_data):
                     decoded_data = self.decode_base64_safely(ss_data)
                     if decoded_data:
                         # 解码后应该是 method:password@host:port 格式
-                        if '@' in decoded_data:
-                            auth_part, server_part = decoded_data.split('@', 1)
-                            
+                        if "@" in decoded_data:
+                            auth_part, server_part = decoded_data.split("@", 1)
+
                             # 解析认证部分 method:password
-                            if ':' in auth_part:
-                                method, password = auth_part.split(':', 1)
+                            if ":" in auth_part:
+                                method, password = auth_part.split(":", 1)
                             else:
-                                method, password = '', auth_part
-                            
+                                method, password = "", auth_part
+
                             # 解析服务器部分 host:port
-                            if ':' in server_part:
-                                host, port = server_part.rsplit(':', 1)
+                            if ":" in server_part:
+                                host, port = server_part.rsplit(":", 1)
                                 # 移除可能的参数部分
-                                port = port.split('?')[0]
+                                port = port.split("?")[0]
                                 try:
                                     port_int = int(port)
                                     return {
-                                        'protocol': 'ss',
-                                        'host': host,
-                                        'port': port_int,
-                                        'method': method,
-                                        'password': password,
-                                        'original': config
+                                        "protocol": "ss",
+                                        "host": host,
+                                        "port": port_int,
+                                        "method": method,
+                                        "password": password,
+                                        "original": config,
                                     }
                                 except ValueError:
                                     print(f"端口转换失败: {port}")
                                     return None
                         else:
                             # 如果解码后没有@符号，尝试其他格式
-                            parts = decoded_data.split(':')
+                            parts = decoded_data.split(":")
                             if len(parts) >= 4:  # method:password:host:port 格式
                                 method = parts[0]
-                                password = ':'.join(parts[1:-2])  # 密码可能包含冒号
+                                password = ":".join(parts[1:-2])  # 密码可能包含冒号
                                 host = parts[-2]
                                 port = parts[-1]
                                 try:
                                     port_int = int(port)
                                     return {
-                                        'protocol': 'ss',
-                                        'host': host,
-                                        'port': port_int,
-                                        'method': method,
-                                        'password': password,
-                                        'original': config
+                                        "protocol": "ss",
+                                        "host": host,
+                                        "port": port_int,
+                                        "method": method,
+                                        "password": password,
+                                        "original": config,
                                     }
                                 except ValueError:
                                     print(f"端口转换失败: {port}")
@@ -381,23 +386,27 @@ class V2rayConfigChecker:
                 else:
                     print(f"不是有效的Base64: {ss_data}")
                     # 情况3: 非base64格式的其他处理
-                    if ':' in ss_data:
-                        parts = ss_data.split(':')
+                    if ":" in ss_data:
+                        parts = ss_data.split(":")
                         if len(parts) >= 2:
                             host = parts[-2]
-                            port = parts[-1].split('?')[0]
-                            method = parts[0] if len(parts) > 2 else ''
-                            password = ':'.join(parts[1:-2]) if len(parts) > 3 else (parts[1] if len(parts) > 2 else '')
-                            
+                            port = parts[-1].split("?")[0]
+                            method = parts[0] if len(parts) > 2 else ""
+                            password = (
+                                ":".join(parts[1:-2])
+                                if len(parts) > 3
+                                else (parts[1] if len(parts) > 2 else "")
+                            )
+
                             try:
                                 port_int = int(port)
                                 return {
-                                    'protocol': 'ss',
-                                    'host': host,
-                                    'port': port_int,
-                                    'method': method,
-                                    'password': password,
-                                    'original': config
+                                    "protocol": "ss",
+                                    "host": host,
+                                    "port": port_int,
+                                    "method": method,
+                                    "password": password,
+                                    "original": config,
                                 }
                             except ValueError:
                                 print(f"端口转换失败: {port}")
@@ -405,36 +414,37 @@ class V2rayConfigChecker:
         except Exception as e:
             print(f"解析SS配置失败: {e}")
             import traceback
+
             traceback.print_exc()
         return None
-    
+
     def parse_ssr(self, config):
         """解析ShadowsocksR配置"""
         try:
             # ssr://base64_encoded 或 ssr://auth@host:port
             ssr_data = config[6:]  # 去掉"ssr://"
-            
+
             # 检查是否为base64编码
             if self.is_base64(ssr_data):
                 decoded_data = self.decode_base64_safely(ssr_data)
                 if decoded_data:
                     # 先分离主要部分和参数部分
-                    if '?' in decoded_data:
-                        main_part, _ = decoded_data.split('?', 1)
+                    if "?" in decoded_data:
+                        main_part, _ = decoded_data.split("?", 1)
                     else:
                         main_part = decoded_data
-                    
+
                     # 解析复杂的SSR格式：host:port:protocol:method:obfs:password_base64
-                    parts = main_part.split(':')
+                    parts = main_part.split(":")
                     if len(parts) >= 2:
                         host = parts[0]
                         port = parts[1]
                         try:
                             return {
-                                'protocol': 'ssr',
-                                'host': host,
-                                'port': int(port),
-                                'original': config
+                                "protocol": "ssr",
+                                "host": host,
+                                "port": int(port),
+                                "original": config,
                             }
                         except ValueError:
                             print(f"SSR端口转换失败: {port}")
@@ -444,49 +454,49 @@ class V2rayConfigChecker:
                     return None
             else:
                 # 尝试解析非base64格式
-                url_part = ssr_data.split('?')[0].split('#')[0]
-                if '@' in url_part:
-                    match = re.match(r'[^@]+@([^:]+):(\d+)', url_part)
+                url_part = ssr_data.split("?")[0].split("#")[0]
+                if "@" in url_part:
+                    match = re.match(r"[^@]+@([^:]+):(\d+)", url_part)
                 else:
-                    match = re.match(r'([^:]+):(\d+)', url_part)
-                
+                    match = re.match(r"([^:]+):(\d+)", url_part)
+
                 if match:
                     host, port = match.groups()
                     return {
-                        'protocol': 'ssr',
-                        'host': host,
-                        'port': int(port),
-                        'original': config
+                        "protocol": "ssr",
+                        "host": host,
+                        "port": int(port),
+                        "original": config,
                     }
         except Exception as e:
             print(f"解析SSR配置失败: {e}")
         return None
-    
+
     def parse_hy2(self, config):
         """解析HY2配置"""
         try:
             # 使用正则表达式匹配 hy2://password@host:port 格式
             # 匹配模式：hy2://任意字符@主机:端口
-            pattern = r'hy2://[^@]*@([^:/?#]+):(\d+)'
+            pattern = r"hy2://[^@]*@([^:/?#]+):(\d+)"
             match = re.match(pattern, config)
-            
+
             if match:
                 host = match.group(1)
                 port = int(match.group(2))
-                
+
                 return {
-                    'protocol': 'hy2',
-                    'host': host,
-                    'port': port,
-                    'original': config
+                    "protocol": "hy2",
+                    "host": host,
+                    "port": port,
+                    "original": config,
                 }
             else:
                 return None
-                
+
         except Exception as e:
             print(f"解析HY2配置失败: {e}")
             return None
-    
+
     def test_tcp_connectivity(self, host, port):
         """测试TCP端口连通性（同时尝试 IPv4/IPv6）"""
         try:
@@ -508,26 +518,26 @@ class V2rayConfigChecker:
                 # 尝试下一个地址族
                 continue
         return False
-    
+
     def test_config_connectivity(self, config_info):
         """测试单个配置的连通性"""
         if not config_info:
             return False
-        
-        host = config_info['host']
-        port = config_info['port']
-        protocol = config_info['protocol']
-        
+
+        host = config_info["host"]
+        port = config_info["port"]
+        protocol = config_info["protocol"]
+
         # 获取当前时间戳
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         print(f"[{timestamp}] 测试 {protocol}://{host}:{port}")
-        
+
         # 只测试TCP端口连通性
         tcp_ok = self.test_tcp_connectivity(host, port)
         print(f"  TCP {port}: {'✓' if tcp_ok else '✗'}")
-        
+
         return tcp_ok
-    
+
     def _resolve_all_ips_parallel_safe(self, host):
         """解析域名为所有 IPv4 地址（带缓存，解析失败返回空列表）"""
         if not host:
@@ -551,13 +561,16 @@ class V2rayConfigChecker:
             return self._geo_cache[ip]
         try:
             # ip-api 免费接口，返回国家与国家码（注意免费版有频率限制）
-            resp = requests.get(f"http://ip-api.com/json/{ip}?fields=status,country,countryCode", timeout=self.timeout)
+            resp = requests.get(
+                f"http://ip-api.com/json/{ip}?fields=status,country,countryCode",
+                timeout=self.timeout,
+            )
             if resp.status_code == 200:
                 data = resp.json()
-                if data.get('status') == 'success':
+                if data.get("status") == "success":
                     self._geo_cache[ip] = {
-                        'country': data.get('country', ''),
-                        'countryCode': data.get('countryCode', '')
+                        "country": data.get("country", ""),
+                        "countryCode": data.get("countryCode", ""),
                     }
                     return self._geo_cache[ip]
         except Exception as e:
@@ -571,57 +584,95 @@ class V2rayConfigChecker:
             return set()
         code = code.upper()
         eu_codes = {
-            'DE','FR','IT','ES','NL','BE','AT','CH','SE','NO','DK','FI',
-            'PL','CZ','HU','RO','BG','HR','SI','SK','LT','LV','EE',
-            'IE','PT','GR','CY','MT','LU','IS','LI','MC','SM','VA','AD','GB','UK'
+            "DE",
+            "FR",
+            "IT",
+            "ES",
+            "NL",
+            "BE",
+            "AT",
+            "CH",
+            "SE",
+            "NO",
+            "DK",
+            "FI",
+            "PL",
+            "CZ",
+            "HU",
+            "RO",
+            "BG",
+            "HR",
+            "SI",
+            "SK",
+            "LT",
+            "LV",
+            "EE",
+            "IE",
+            "PT",
+            "GR",
+            "CY",
+            "MT",
+            "LU",
+            "IS",
+            "LI",
+            "MC",
+            "SM",
+            "VA",
+            "AD",
+            "GB",
+            "UK",
         }
         regions = set()
-        if code in ('US', 'CA'):
-            regions.add('US_CA')
-        if code in eu_codes or code in ('JP', 'KR'):
-            regions.add('EU_JP_KR')
+        if code in ("US", "CA"):
+            regions.add("US_CA")
+        if code in eu_codes or code in ("JP", "KR"):
+            regions.add("EU_JP_KR")
         if not regions:
-            regions.add('OTHER')
+            regions.add("OTHER")
         return regions
 
     def classify_host_regions(self, host):
         """对主机解析所有 IP 并获取区域集合（可能跨多个区域）"""
         ips = self._resolve_all_ips_parallel_safe(host)
         if not ips:
-            return {'OTHER'}
+            return {"OTHER"}
         regions = set()
         # 对每个 IP 查询地理信息（为了简单这里顺序查询，若量大可再并行）
         for ip in ips:
             geo = self._geolocate_ip(ip)
-            if geo and geo.get('countryCode'):
-                regions |= self._regions_from_country_code(geo['countryCode'])
-        return regions or {'OTHER'}
-    
+            if geo and geo.get("countryCode"):
+                regions |= self._regions_from_country_code(geo["countryCode"])
+        return regions or {"OTHER"}
+
     def check_file(self, file_path):
         """并行检查配置文件中的所有配置，并同时进行区域分类与最终加密"""
         if not os.path.exists(file_path):
             print(f"文件不存在: {file_path}")
             return
-        
+
         print(f"检查文件: {file_path}")
 
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, "r", encoding="utf-8") as f:
             lines = f.readlines()
 
         # 注释行保留到有效文件头部
         header_comment_lines = []
         work_items = []  # (index, original_line)
-        
+
         # 首先添加时间戳到头部
-        header_comment_lines.append(f"# 文件更新时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S UTC')}\n")
-        header_comment_lines.append(f"# 连通性检测完成时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
-        
+        header_comment_lines.append(
+            f"# 文件更新时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S UTC')}\n"
+        )
+        header_comment_lines.append(
+            f"# 连通性检测完成时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
+        )
+
         for i, raw in enumerate(lines, 1):
             line = raw.strip()
             if not line:
                 continue
-            if line.startswith('#'):
-                header_comment_lines.append(line + '\n')
+            if line.startswith("#"):
+                header_comment_lines.append(line + "\n")
                 continue
             work_items.append((i, line))
 
@@ -641,15 +692,11 @@ class V2rayConfigChecker:
                 print(f"[{ts}]   第{idx}行: ✗ 无效，已删除")
                 return None
             # 有效：分类归属地
-            regions = self.classify_host_regions(cfg['host'])
+            regions = self.classify_host_regions(cfg["host"])
             self.valid_configs.append(cfg)
             ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             print(f"[{ts}]   第{idx}行: ✓ 有效，区域={','.join(sorted(regions))}")
-            return {
-                'line': clean,
-                'cfg': cfg,
-                'regions': regions
-            }
+            return {"line": clean, "cfg": cfg, "regions": regions}
 
         # 并行执行
         max_workers = min(32, (os.cpu_count() or 4) * 5)  # I/O 密集型，开大点
@@ -671,10 +718,10 @@ class V2rayConfigChecker:
         parent_dir = os.path.dirname(file_path)
 
         # 有效文件
-        with open(valid_file_path, 'w', encoding='utf-8') as f:
+        with open(valid_file_path, "w", encoding="utf-8") as f:
             f.writelines(header_comment_lines)
             for r in results:
-                f.write(r['line'] + '\n')
+                f.write(r["line"] + "\n")
         print(f"有效配置保存到: {valid_file_path}（{len(results)} 个）")
 
         # 区域分类写出（统一写到项目根目录，即 file_path 所在目录）
@@ -684,65 +731,70 @@ class V2rayConfigChecker:
 
         us_ca, eu_jp_kr, other = [], [], []
         for r in results:
-            regs = r['regions']
-            if 'US_CA' in regs:
-                us_ca.append(r['line'])
-            if 'EU_JP_KR' in regs:
-                eu_jp_kr.append(r['line'])
+            regs = r["regions"]
+            if "US_CA" in regs:
+                us_ca.append(r["line"])
+            if "EU_JP_KR" in regs:
+                eu_jp_kr.append(r["line"])
             # 仅当不属于前两个区域时，归为其它
-            if regs == {'OTHER'} or (('US_CA' not in regs) and ('EU_JP_KR' not in regs)):
-                other.append(r['line'])
+            if regs == {"OTHER"} or (
+                ("US_CA" not in regs) and ("EU_JP_KR" not in regs)
+            ):
+                other.append(r["line"])
 
-        with open(us_ca_file, 'w', encoding='utf-8') as f:
+        with open(us_ca_file, "w", encoding="utf-8") as f:
             for line in us_ca:
-                f.write(line + '\n')
+                f.write(line + "\n")
         print(f"美国/加拿大配置已保存到: {us_ca_file}（{len(us_ca)} 个）")
 
-        with open(eu_jp_kr_file, 'w', encoding='utf-8') as f:
+        with open(eu_jp_kr_file, "w", encoding="utf-8") as f:
             for line in eu_jp_kr:
-                f.write(line + '\n')
+                f.write(line + "\n")
         print(f"欧洲/日韩配置已保存到: {eu_jp_kr_file}（{len(eu_jp_kr)} 个）")
 
-        with open(other_file, 'w', encoding='utf-8') as f:
+        with open(other_file, "w", encoding="utf-8") as f:
             for line in other:
-                f.write(line + '\n')
+                f.write(line + "\n")
         print(f"其他地区配置已保存到: {other_file}（{len(other)} 个）")
 
         # 最后对上述文件进行加密
         try:
             password = os.getenv("ENCRYPT_PASSWORD", "v2plus").strip() or "v2plus"
             enc = EncryptService(password)
-            
+
             # 定义加密文件的自定义输出路径
             encryption_mappings = {
-                valid_file_path: valid_file_path + ".encrypted",  # All_Configs_Sub_valid.txt.encrypted
-                us_ca_file: os.path.join(parent_dir, "US_CA"),      # US_CA.txt -> US_CA
-                eu_jp_kr_file: os.path.join(parent_dir, "EU_JP_KR"), # EU_JP_KR.txt -> EU_JP_KR
-                other_file: os.path.join(parent_dir, "Other")       # Other.txt -> Other
+                valid_file_path: valid_file_path
+                + ".encrypted",  # All_Configs_Sub_valid.txt.encrypted
+                us_ca_file: os.path.join(parent_dir, "US_CA"),  # US_CA.txt -> US_CA
+                eu_jp_kr_file: os.path.join(
+                    parent_dir, "EU_JP_KR"
+                ),  # EU_JP_KR.txt -> EU_JP_KR
+                other_file: os.path.join(parent_dir, "Other"),  # Other.txt -> Other
             }
-            
+
             for source_file, encrypted_file in encryption_mappings.items():
                 # 如果加密文件已存在，先删除（实现覆盖）
                 if os.path.exists(encrypted_file):
                     os.remove(encrypted_file)
                     print(f"已删除旧的加密文件: {encrypted_file}")
-                
+
                 # 执行加密
                 outp = enc.encrypt_file(source_file, encrypted_file)
                 print(f"文件已加密: {outp}")
         except Exception as e:
             print(f"加密阶段发生异常（不影响明文文件）：{e}")
-    
+
     def check_all_files(self):
         """检查所有配置文件"""
         base_dir = os.path.dirname(os.path.abspath(__file__))
         parent_dir = os.path.dirname(base_dir)
-        
+
         # 只检查All_Configs_Sub.txt文件
         files_to_check = [
-            os.path.join(parent_dir, 'All_Configs_Sub.txt'),
+            os.path.join(parent_dir, "All_Configs_Sub.txt"),
         ]
-        
+
         for file_path in files_to_check:
             if os.path.exists(file_path):
                 print(f"\n{'='*50}")
@@ -753,6 +805,7 @@ class V2rayConfigChecker:
         print(f"  有效配置: {len(self.valid_configs)}")
         print(f"  无效配置: {len(self.invalid_configs)}")
 
+
 def main():
     timeout_env = os.getenv("CONNECT_TIMEOUT", "").strip()
     try:
@@ -761,7 +814,7 @@ def main():
         timeout = 10
 
     checker = V2rayConfigChecker(timeout=timeout)
-    
+
     if len(sys.argv) > 1:
         # 检查指定文件
         file_path = sys.argv[1]
@@ -769,6 +822,7 @@ def main():
     else:
         # 检查所有文件
         checker.check_all_files()
+
 
 if __name__ == "__main__":
     main()

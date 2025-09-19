@@ -8,6 +8,7 @@ import binascii
 import os
 import json
 from connectivity_checker import V2rayConfigChecker
+from proxyUtil import *
 
 # Define a fixed timeout for HTTP requests
 TIMEOUT = 15  # seconds
@@ -86,6 +87,56 @@ def decode_dir_links(dir_links, max_configs, current_count=0):
     return decoded_dir_links, current_count
 
 
+# 新增：依据内容来判定是否为 base64 订阅并完成解码，返回合并后的文本
+def fetch_and_decode(urls, max_configs):
+    protocols = ["vmess://", "vless://", "trojan://", "ss://", "ssr://", "hy2://"]
+    decoded_chunks = []
+    current_count = 0
+    base64_sources = 0
+    direct_sources = 0
+
+    for url in urls:
+        if current_count >= max_configs:
+            break
+        try:
+            resp = requests.get(url, timeout=TIMEOUT)
+            content_bytes = resp.content
+
+            # 尝试作为 base64 解码
+            decoded_b64 = decode_base64(content_bytes)
+            is_b64 = bool(decoded_b64) and any(p in decoded_b64 for p in protocols)
+
+            if is_b64:
+                decoded_chunks.append(decoded_b64)
+                base64_sources += 1
+                # 估算当前源中的配置行数量
+                lines = decoded_b64.strip().split("\n")
+                config_lines = [
+                    line
+                    for line in lines
+                    if line.strip() and not line.strip().startswith("#")
+                ]
+                current_count += len(config_lines)
+            else:
+                # 按明文处理
+                text = resp.text or ""
+                if text:
+                    decoded_chunks.append(text)
+                    direct_sources += 1
+                    lines = text.strip().split("\n")
+                    config_lines = [
+                        line
+                        for line in lines
+                        if line.strip() and not line.strip().startswith("#")
+                    ]
+                    current_count += len(config_lines)
+        except requests.RequestException:
+            # 忽略失败的源
+            pass
+
+    return decoded_chunks, current_count, base64_sources, direct_sources
+
+
 # Filter function to select lines based on specified protocols and remove duplicates (only for config lines)
 def filter_for_protocols(data, protocols, max_configs):
     filtered_data = []
@@ -141,154 +192,106 @@ def filter_for_protocols(data, protocols, max_configs):
 # Create necessary directories if they don't exist
 def ensure_directories_exist():
     output_folder = os.path.join(os.path.dirname(__file__), "..")
-    base64_folder = os.path.join(output_folder, "Base64")
 
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
-    if not os.path.exists(base64_folder):
-        os.makedirs(base64_folder)
 
-    return output_folder, base64_folder
+    return output_folder
 
 
-# Main function to process links and write output files
 def checkURL(url):
-    """检测URL是否可访问"""
     try:
         r = requests.head(url, timeout=3)
-        return r.status_code // 100 == 2
     except:
         return False
+    return r.status_code // 100 == 2
 
 
-def scrapURL(url):
-    """从URL获取代理配置数量"""
-    try:
-        response = requests.get(url, timeout=TIMEOUT)
-        if response.status_code != 200:
-            return 0
-
-        # 尝试判断是base64编码还是直接文本
-        content = response.content
-
-        # 先尝试作为base64解码
-        try:
-            decoded_text = decode_base64(content)
-            if decoded_text:
-                # 成功解码，使用解码后的内容
-                text_content = decoded_text
-            else:
-                # 解码失败，使用原始文本
-                text_content = response.text
-        except:
-            # 解码异常，使用原始文本
-            text_content = response.text
-
-        # 统计有效的代理配置行
-        lines = text_content.strip().split("\n")
-        config_count = 0
-
-        # 定义支持的协议
-        protocols = ["vless://", "vmess://", "trojan://", "ss://", "ssr://", "hy2://"]
-
-        for line in lines:
-            line = line.strip()
-            # 跳过空行和注释行
-            if not line or line.startswith("#"):
-                continue
-
-            # 检查是否包含支持的协议
-            if any(line.startswith(protocol) for protocol in protocols):
-                config_count += 1
-
-        return config_count
-
-    except Exception as e:
-        print(f"获取代理配置失败 {url}: {e}")
-        return 0
-
-
+# 新增：封装为函数，并使用绝对路径 + ScrapURL 统计“数量”
 def update_resources_status():
-    """更新Resources文件中的URL状态和代理数量"""
-    # 基于文件位置定位 Resources，避免依赖当前工作目录
+    print("开始检测Resources.md文件中的URL状态...")
     base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-    resources_path = os.path.join(base_dir, "Resources")
+    resources_path = os.path.join(base_dir, "Resources.md")
 
     if not os.path.exists(resources_path):
-        print("Resources文件不存在，跳过状态更新")
+        print("警告：Resources.md 文件不存在，跳过状态更新")
         return
 
-    print("开始检测Resources文件中的URL状态...")
-
     output = []
-    with open(resources_path, encoding="utf8") as file:
-        cnt = 0
-        while line := file.readline():
-            line = line.rstrip()
-            if line.startswith("|"):
-                if cnt > 1:  # 跳过表头行
-                    columns = [col.strip() for col in line.split("|")]
-                    # 参考你的 nodes.md 实现，URL 在倒数第二个分隔列
-                    if len(columns) >= 2:
-                        url = columns[-2].strip()
 
-                        # 不修改正常的 https://，直接校验
-                        if not url.startswith("https://"):
-                            cnt += 1
-                            output.append(line)
-                            continue
+    try:
+        with open(resources_path, "r", encoding="utf8") as file:
+            cnt = 0
+            for raw in file:
+                line = raw.rstrip()
+                if line.startswith("|"):
+                    if cnt > 1:
+                        cells = [c.strip() for c in line.strip().strip("|").split("|")]
+                        if len(cells) >= 5:
+                            url = cells[-1]
 
-                        # 检测URL状态（重试3次）
-                        status_ok = False
-                        for _ in range(3):
-                            if checkURL(url):
-                                status_ok = True
-                                break
-                        status_icon = "✅" if status_ok else "❌"
+                            current_ok = False
+                            for _ in range(3):
+                                if checkURL(url):
+                                    current_ok = True
+                                    break
+                            status_symbol = "✅" if current_ok else "❌"
 
-                        # 统计代理数量（可用时才统计）
-                        try:
-                            proxy_count = scrapURL(url) if status_ok else 0
-                        except Exception as e:
-                            print(f"获取代理数量失败 {url}: {e}")
-                            proxy_count = 0
+                            try:
+                                resp_val = int(cells[1])
+                            except:
+                                resp_val = 5
 
-                        # 回写状态和数量到表格前两列
-                        line = re.sub(
-                            r"^\|+?(.*?)\|+?(.*?)\|+?",
-                            f"| {status_icon} | {proxy_count} |",
-                            line,
-                            count=1,
-                        )
-                        print(
-                            f"检测完成: {url} -> {status_icon} ({proxy_count} proxies)"
-                        )
-                cnt += 1
-            output.append(line)
+                            new_resp = resp_val if current_ok else resp_val - 1
 
-    # 写回文件
-    with open(resources_path, "w", encoding="utf8") as f:
-        f.write("\n".join(output))
+                            try:
+                                p = ScrapURL(url)
+                            except Exception:
+                                p = []
+                            proxy_count = len(p)
 
-    print("Resources文件状态更新完成")
+                            if not current_ok and new_resp <= 1:
+                                cnt += 1
+                                continue
+
+                            updated_every = cells[3]
+
+                            new_cells = [
+                                status_symbol,
+                                str(new_resp),
+                                str(proxy_count),
+                                updated_every,
+                                url,
+                            ]
+                            line = "| " + " | ".join(new_cells) + " |"
+                    cnt += 1
+                output.append(line)
+
+        with open(resources_path, "w", encoding="utf8", newline="\n") as f:
+            f.write("\n".join(output))
+
+        print("Resources.md文件状态更新完成")
+    except Exception as e:
+        print(f"更新Resources.md状态时出错：{e}")
 
 
 def load_links_from_resources():
-    """从Resources文件中提取URL链接（改进版）"""
-    links = []
-    dir_links = []
+    """从Resources文件中提取URL链接（只收集✅可用的URL，不在此处分类）"""
+    urls = []
 
     # 先更新Resources文件状态
     update_resources_status()
 
+    # 基于文件位置定位 Resources.md，避免依赖当前工作目录
+    base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+    resources_path = os.path.join(base_dir, "Resources.md")
+
     try:
-        with open("../Resources", "r", encoding="utf-8") as f:
+        with open(resources_path, "r", encoding="utf-8") as f:
             lines = f.readlines()
 
-        for line in lines:
-            line = line.strip()
-
-            # 跳过空行、注释行、表格头部和分隔符
+        for raw in lines:
+            line = raw.strip()
             if (
                 not line
                 or line.startswith("#")
@@ -300,42 +303,38 @@ def load_links_from_resources():
             ):
                 continue
 
-            # 处理表格行
             if line.startswith("|") and line.endswith("|"):
-                columns = [col.strip() for col in line.split("|")]
+                cells = [c.strip() for c in line.strip().strip("|").split("|")]
+                if len(cells) >= 2:
+                    status = cells[0]
+                    url = None
+                    if cells[-1].startswith("http"):
+                        url = cells[-1]
+                    else:
+                        for c in reversed(cells):
+                            if c.startswith("http"):
+                                url = c
+                                break
 
-                if len(columns) >= 5:
-                    status = columns[1].strip()
-                    url = columns[4].strip()
-
-                    # 不要再截断 https://，直接使用原始URL
-                    # if url.startswith("https://"):
-                    #     url = url[1:]
-
-                    if status == "✅" and url.startswith("https://") and len(url) > 10:
-                        if any(
-                            keyword in url.lower()
-                            for keyword in ["sub.txt", "base64", "encoded"]
-                        ):
-                            links.append(url)
-                        else:
-                            dir_links.append(url)
+                    if (
+                        status == "✅"
+                        and url
+                        and url.startswith(("http://", "https://"))
+                        and len(url) > 10
+                    ):
+                        urls.append(url)
 
     except FileNotFoundError:
-        print("警告：Resources文件未找到，使用默认链接")
-        links = [
-            "https://raw.githubusercontent.com/ALIILAPRO/v2rayNG-Config/main/sub.txt"
-        ]
-        dir_links = []
+        print("警告：Resources.md文件未找到，返回空链接列表")
+        urls = []
     except Exception as e:
-        print(f"读取Resources文件时出错：{e}")
-        links = []
-        dir_links = []
+        print(f"读取Resources.md文件时出错：{e}")
+        urls = []
 
     print(
-        f"从Resources文件中提取到 {len(links)} 个base64链接和 {len(dir_links)} 个直接文本链接"
+        f"从Resources.md文件中提取到 {len(urls)} 个可用链接（将按内容自动判定 base64 或明文）"
     )
-    return links, dir_links
+    return urls
 
 
 def main():
@@ -343,67 +342,22 @@ def main():
     protocols = ["vmess", "vless", "trojan", "ss", "ssr", "hy2"]
 
     # 从外部文件加载链接（会自动检测和更新状态）
-    links, dir_links = load_links_from_resources()
+    urls = load_links_from_resources()
 
-    all_configs = []
-    output_folder, base64_folder = ensure_directories_exist()
-
-    # 删除第160-188行的硬编码链接部分
+    output_folder = ensure_directories_exist()
 
     print("Starting to fetch and process configs...")
 
-    # protocols = ["vmess", "vless", "trojan", "ss", "ssr", "hy2"]
-    # links = [
-    # "https://raw.githubusercontent.com/ALIILAPRO/v2rayNG-Config/main/sub.txt",
-    # "https://raw.githubusercontent.com/mfuu/v2ray/master/v2ray",
-    # "https://raw.githubusercontent.com/ts-sf/fly/main/v2",
-    # "https://raw.githubusercontent.com/aiboboxx/v2rayfree/main/v2",
-    # "https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/refs/heads/main/app/sub.txt",
-    # "https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/refs/heads/main/mtn/sub_1.txt",
-    # "https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/refs/heads/main/mtn/sub_2.txt",
-    # "https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/refs/heads/main/mtn/sub_3.txt",
-    # "https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/refs/heads/main/mtn/sub_4.txt",
-    # "https://raw.githubusercontent.com/yebekhe/vpn-fail/refs/heads/main/sub-link",
-    # "https://raw.githubusercontent.com/Surfboardv2ray/TGParse/main/splitted/mixed"
-    # ]
-    # dir_links = [
-    # "https://raw.githubusercontent.com/itsyebekhe/PSG/main/lite/subscriptions/xray/normal/mix",
-    # "https://raw.githubusercontent.com/HosseinKoofi/GO_V2rayCollector/main/mixed_iran.txt",
-    # "https://raw.githubusercontent.com/arshiacomplus/v2rayExtractor/refs/heads/main/mix/sub.html",
-    # "https://raw.githubusercontent.com/IranianCypherpunks/sub/main/config",
-    # "https://raw.githubusercontent.com/Rayan-Config/C-Sub/refs/heads/main/configs/proxy.txt",
-    # "https://raw.githubusercontent.com/sashalsk/V2Ray/main/V2Config",
-    # "https://raw.githubusercontent.com/mahdibland/ShadowsocksAggregator/master/Eternity.txt",
-    # "https://raw.githubusercontent.com/itsyebekhe/HiN-VPN/main/subscription/normal/mix",
-    # "https://raw.githubusercontent.com/sarinaesmailzadeh/V2Hub/main/merged",
-    # "https://raw.githubusercontent.com/freev2rayconfig/V2RAY_SUBSCRIPTION_LINK/main/v2rayconfigs.txt",
-    # "https://raw.githubusercontent.com/Everyday-VPN/Everyday-VPN/main/subscription/main.txt",
-    # "https://raw.githubusercontent.com/C4ssif3r/V2ray-sub/main/all.txt",
-    # "https://raw.githubusercontent.com/MahsaNetConfigTopic/config/refs/heads/main/xray_final.txt",
-    # ]
-
-    print("Fetching base64 encoded configs...")
-    decoded_links, config_count = decode_links(links, MAX_CONFIGS)
+    # 基于内容自动判定 base64/明文并解码
+    decoded_sources, config_count, b64_src_cnt, direct_src_cnt = fetch_and_decode(
+        urls, MAX_CONFIGS
+    )
     print(
-        f"Decoded {len(decoded_links)} base64 sources, estimated {config_count} configs"
+        f"Decoded by content type: {b64_src_cnt} base64 sources, {direct_src_cnt} direct text sources, estimated {config_count} configs"
     )
 
-    if config_count < MAX_CONFIGS:
-        print("Fetching direct text configs...")
-        decoded_dir_links, config_count = decode_dir_links(
-            dir_links, MAX_CONFIGS, config_count
-        )
-        print(
-            f"Decoded {len(decoded_dir_links)} direct text sources, total estimated {config_count} configs"
-        )
-    else:
-        decoded_dir_links = []
-        print("Skipping direct text configs as limit already reached")
-
     print("Combining and filtering configs...")
-    combined_data = decoded_links + decoded_dir_links
-    merged_configs = filter_for_protocols(combined_data, protocols, MAX_CONFIGS)
-
+    merged_configs = filter_for_protocols(decoded_sources, protocols, MAX_CONFIGS)
     print(f"Found {len(merged_configs)} unique configs after filtering")
 
     # Write merged configs to output file

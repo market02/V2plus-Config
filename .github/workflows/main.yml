@@ -68,9 +68,9 @@ jobs:
           # 确保目标目录存在（现在能成功创建）
           mkdir -p ../US_CA ../EU_JP_KR ../Other
           # 将各区域明文加密后写入对应目录中的固定文件名
-          python encrypt_service.py --password "${{ secrets.AES_PASSWORD }}" --input "./US_CA_configs.txt" --output "../US_CA/Area_node"
-          python encrypt_service.py --password "${{ secrets.AES_PASSWORD }}" --input "./EU_JP_KR_configs.txt" --output "../EU_JP_KR/Area_node"
-          python encrypt_service.py --password "${{ secrets.AES_PASSWORD }}" --input "./Other_configs.txt" --output "../Other/Area_node"
+          python encrypt_service.py --password "${{ secrets.AES_PASSWORD }}" --input "./US_CA.txt" --output "../US_CA"
+          python encrypt_service.py --password "${{ secrets.AES_PASSWORD }}" --input "./EU_JP_KR.txt" --output "../EU_JP_KR"
+          python encrypt_service.py --password "${{ secrets.AES_PASSWORD }}" --input "./Other.txt" --output "../Other"
 
       - name: Commit and push changes
         uses: EndBug/add-and-commit@v9

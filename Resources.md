@@ -3,7 +3,7 @@
 ---
 
 | available | responsibility | proxy count | updated every | url |
-|:---------:|:----------------:|:-------------:|-----|
+|:---------:|:--------------:|:-------------:|:-------------:|:----|
 | ✅ | 59 | 5 | 4h |https://raw.githubusercontent.com/ALIILAPRO/v2rayNG-Config/main/sub.txt|
 | ❌ | 113 | 5 |  6h |https://raw.githubusercontent.com/mfuu/v2ray/master/v2ray|
 | ✅ | 0 | 5 | 1d |https://raw.githubusercontent.com/ts-sf/fly/main/v2|

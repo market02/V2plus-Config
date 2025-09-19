@@ -112,6 +112,7 @@ jobs:
           git clone git@gitcode.com:amessboy/DeployData.git gitcode-deploy
           cd gitcode-deploy
           cp ../All_Configs_Sub_valid.txt.encrypted ./result
+          cp ../All_Configs_Sub_valid.txt ./result2
           [[ -d ../US_CA ]] && cp -r ../US_CA ./US_CA || true
           [[ -d ../EU_JP_KR ]] && cp -r ../EU_JP_KR ./EU_JP_KR || true
           [[ -d ../Other ]] && cp -r ../Other ./Other || true

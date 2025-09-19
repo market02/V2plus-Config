@@ -4,6 +4,7 @@
 
 | available | responsibility | proxy count | updated every | url |
 |:---------:|:--------------:|:-------------:|:-------------:|:----|
+<<<<<<< HEAD
 | ✅ | 59 | 5 | 4h |https://raw.githubusercontent.com/ALIILAPRO/v2rayNG-Config/main/sub.txt|
 | ✅ | 42 | 5 | 1h |https://raw.githubusercontent.com/aiboboxx/v2rayfree/main/v2|
 | ✅ | 3 | 5 | 12h |https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/refs/heads/main/mtn/sub_1.txt|
@@ -12,6 +13,19 @@
 | ✅ | 0 | 5 | 4h |https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/refs/heads/main/mtn/sub_4.txt|
 | ✅ | 30 | 5 | idk |https://raw.githubusercontent.com/yebekhe/vpn-fail/refs/heads/main/sub-link|
 | ✅ | 5049 | 5 | 2h |https://raw.githubusercontent.com/Surfboardv2ray/TGParse/main/splitted/mixed|
+=======
+| ✅ | 59 | 59 | 4h | https://raw.githubusercontent.com/ALIILAPRO/v2rayNG-Config/main/sub.txt |
+| ✅ | 113 | 107 | 6h | https://raw.githubusercontent.com/mfuu/v2ray/master/v2ray |
+| ✅ | 0 | 44 | 1d | https://raw.githubusercontent.com/ts-sf/fly/main/v2 |
+| ✅ | 42 | 42 | 1h | https://raw.githubusercontent.com/aiboboxx/v2rayfree/main/v2 |
+| ✅ | 0 | 0 | 12h | https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/refs/heads/main/app/sub.txt |
+| ✅ | 3 | 3 | 12h | https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/refs/heads/main/mtn/sub_1.txt |
+| ✅ | 0 | 30 | 2h | https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/refs/heads/main/mtn/sub_2.txt |
+| ✅ | 30 | 30 | 2h | https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/refs/heads/main/mtn/sub_3.txt |
+| ✅ | 0 | 26 | 4h | https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/refs/heads/main/mtn/sub_4.txt |
+| ✅ | 30 | 30 | idk | https://raw.githubusercontent.com/yebekhe/vpn-fail/refs/heads/main/sub-link |
+<!-- | ✅ | 5049 | 5 | 2h |https://raw.githubusercontent.com/Surfboardv2ray/TGParse/main/splitted/mixed|
+>>>>>>> dd9ea356dace3f7cb72ee575d2d9f155e2553954
 | ✅ | 637 | 5 | 2h |https://raw.githubusercontent.com/itsyebekhe/PSG/main/lite/subscriptions/xray/normal/mix|
 | ✅ | 98 | 5 | 2h |https://raw.githubusercontent.com/HosseinKoofi/GO_V2rayCollector/main/mixed_iran.txt|
 | ✅ | 181 | 5 | 2h |https://raw.githubusercontent.com/arshiacomplus/v2rayExtractor/refs/heads/main/mix/sub.html|

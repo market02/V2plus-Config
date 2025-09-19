@@ -20,6 +20,6 @@
 | ✅ | 181 | 5 | 2h |https://raw.githubusercontent.com/arshiacomplus/v2rayExtractor/refs/heads/main/mix/sub.html|
 | ✅ | 0 | 5 | 8h |https://raw.githubusercontent.com/Rayan-Config/C-Sub/refs/heads/main/configs/proxy.txt|
 | ✅ | 200 | 5 | idk |https://raw.githubusercontent.com/mahdibland/ShadowsocksAggregator/master/Eternity.txt|
-| ✅ | 2 | 5 | 1h |https://raw.githubusercontent.com/Everyday-VPN/Everyday-VPN/main/subscription/main.txt| -->
-<!---| ✅ | 167 | 5 | 1h |https://raw.githubusercontent.com/MahsaNetConfigTopic/config/refs/heads/main/xray_final.txt|-->
-<!---| ✅ | 0 | 1h |https://raw.githubusercontent.com/tbbatbb/Proxy/master/dist/v2ray.config.txt|-->
+| ✅ | 2 | 5 | 1h |https://raw.githubusercontent.com/Everyday-VPN/Everyday-VPN/main/subscription/main.txt|
+| ✅ | 167 | 5 | 1h |https://raw.githubusercontent.com/MahsaNetConfigTopic/config/refs/heads/main/xray_final.txt|
+| ✅ | 0 | 1h |https://raw.githubusercontent.com/tbbatbb/Proxy/master/dist/v2ray.config.txt| -->

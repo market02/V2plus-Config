@@ -218,57 +218,82 @@ def update_resources_status():
         return
 
     output = []
-
     try:
         with open(resources_path, "r", encoding="utf8") as file:
-            cnt = 0
-            for raw in file:
-                line = raw.rstrip()
-                if line.startswith("|"):
-                    if cnt > 1:
-                        cells = [c.strip() for c in line.strip().strip("|").split("|")]
-                        if len(cells) >= 5:
-                            url = cells[-1]
+            lines = file.readlines()
 
-                            current_ok = False
-                            for _ in range(3):
-                                if checkURL(url):
-                                    current_ok = True
-                                    break
-                            status_symbol = "✅" if current_ok else "❌"
+        in_comment_block = False
+        for raw_line in lines:
+            line = raw_line.strip()
 
-                            try:
-                                resp_val = int(cells[1])
-                            except:
-                                resp_val = 5
+            # 检查是否进入或退出注释块
+            # 即使在一行内开始和结束，也能正确处理
+            is_currently_commented = in_comment_block or "<!--" in line
 
-                            new_resp = resp_val if current_ok else resp_val - 1
+            if not in_comment_block and "<!--" in line:
+                in_comment_block = True
+            if in_comment_block and "-->" in line:
+                in_comment_block = False
+                # 如果注释块在同一行结束，则当前行仍被视为注释
+                is_currently_commented = True
 
-                            try:
-                                p = ScrapURL(url)
-                            except Exception:
-                                p = []
-                            proxy_count = len(p)
+            # 保留非数据行（注释、标题、分隔符、空行）
+            if (
+                is_currently_commented
+                or not line
+                or not line.startswith("|")
+                or line.startswith("|:-")
+                or "| available |" in line
+            ):
+                output.append(raw_line.rstrip("\n"))
+                continue
 
-                            if not current_ok and new_resp <= 1:
-                                cnt += 1
-                                continue
+            # 处理数据行
+            cells = [c.strip() for c in line.strip("|").split("|")]
+            if len(cells) < 5:
+                output.append(raw_line.rstrip("\n"))  # 保留格式不正确的行
+                continue
 
-                            updated_every = cells[3]
+            url = cells[-1]
 
-                            new_cells = [
-                                status_symbol,
-                                str(new_resp),
-                                str(proxy_count),
-                                updated_every,
-                                url,
-                            ]
-                            line = "| " + " | ".join(new_cells) + " |"
-                    cnt += 1
-                output.append(line)
+            current_ok = False
+            for _ in range(3):
+                if checkURL(url):
+                    current_ok = True
+                    break
+            status_symbol = "✅" if current_ok else "❌"
+
+            try:
+                resp_val = int(cells[1])
+            except (ValueError, IndexError):
+                resp_val = 5
+
+            new_resp = resp_val if current_ok else resp_val - 1
+
+            # 当 responsibility 减到1或以下时，删除该行
+            if new_resp < 1 and not current_ok:
+                continue
+
+            try:
+                p = ScrapURL(url)
+            except Exception:
+                p = []
+            proxy_count = len(p)
+
+            updated_every = cells[3]
+
+            new_cells = [
+                status_symbol,
+                str(new_resp),
+                str(proxy_count),
+                updated_every,
+                url,
+            ]
+            line = "| " + " | ".join(new_cells) + " |"
+            output.append(line)
 
         with open(resources_path, "w", encoding="utf8", newline="\n") as f:
-            f.write("\n".join(output))
+            f.write("\n".join(output) + "\n")
 
         print("Resources.md文件状态更新完成")
     except Exception as e:
@@ -290,15 +315,24 @@ def load_links_from_resources():
         with open(resources_path, "r", encoding="utf-8") as f:
             lines = f.readlines()
 
+        in_comment_block = False
         for raw in lines:
             line = raw.strip()
+
+            # 检查是否进入或退出注释块
+            is_currently_commented = in_comment_block or "<!--" in line
+            if not in_comment_block and "<!--" in line:
+                in_comment_block = True
+            if in_comment_block and "-->" in line:
+                in_comment_block = False
+                is_currently_commented = True
+
             if (
-                not line
+                is_currently_commented
+                or not line
                 or line.startswith("#")
                 or line.startswith("|:-")
                 or line.startswith("---")
-                or line.startswith("<!---")
-                or line.endswith("-->")
                 or "| available |" in line
             ):
                 continue

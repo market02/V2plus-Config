@@ -48,25 +48,15 @@ jobs:
           python connectivity_checker.py
           echo "连通性检测完成"
 
-      # 新增：IP地理位置分类步骤
-      - name: Classify configs by IP geolocation
-        working-directory: Files
-        run: |
-          echo "开始IP地理位置分类..."
-          python ip_detector_classifier.py
-          echo "IP分类完成"
-          echo "分类结果文件:"
-          ls -la US_CA_configs.txt EU_JP_KR_configs.txt Other_configs.txt 2>/dev/null || echo "分类文件未生成"
-
       # 新增：AES加密步骤
       - name: Encrypt valid configs with AES
         working-directory: Files
         run: |
           python encrypt_service.py --password "${{ secrets.AES_PASSWORD }}"
           # 清理与目录名冲突的同名文件（若存在）
-          rm -f ../US_CA ../EU_JP_KR ../Other || true
+          # rm -f ../US_CA ../EU_JP_KR ../Other || true
           # 确保目标目录存在（现在能成功创建）
-          mkdir -p ../US_CA ../EU_JP_KR ../Other
+          # mkdir -p ../US_CA ../EU_JP_KR ../Other
           # 将各区域明文加密后写入对应目录中的固定文件名
           python encrypt_service.py --password "${{ secrets.AES_PASSWORD }}" --input "./US_CA.txt" --output "../US_CA"
           python encrypt_service.py --password "${{ secrets.AES_PASSWORD }}" --input "./EU_JP_KR.txt" --output "../EU_JP_KR"

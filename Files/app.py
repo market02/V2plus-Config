@@ -9,6 +9,7 @@ import os
 import json
 from connectivity_checker import V2rayConfigChecker
 from proxyUtil import *
+from proxy_parsers import ProxyParser
 
 # Define a fixed timeout for HTTP requests
 TIMEOUT = 15  # seconds
@@ -38,155 +39,152 @@ def decode_base64(encoded):
     return decoded
 
 
-# Function to decode base64-encoded links with a timeout and config limit
-def decode_links(links, max_configs, current_count=0):
-    decoded_data = []
-    for link in links:
-        if current_count >= max_configs:
-            break
+def smart_decode_content(response, detection_protocols):
+    # 智能解码响应内容，采用明文优先策略
+
+    try:
+        # 获取响应内容
+        content_bytes = response.content
+        if not content_bytes:
+            return "", False
+
+        # 策略1: 明文优先 - 尝试直接作为文本处理
         try:
-            response = requests.get(link, timeout=TIMEOUT)
-            encoded_bytes = response.content
-            decoded_text = decode_base64(encoded_bytes)
-            if decoded_text:
-                decoded_data.append(decoded_text)
-                # Rough estimate of configs in this source
-                lines = decoded_text.strip().split("\n")
-                config_lines = [
-                    line
-                    for line in lines
-                    if line.strip() and not line.strip().startswith("#")
-                ]
-                current_count += len(config_lines)
-        except requests.RequestException:
-            pass  # If the request fails or times out, skip it
-    return decoded_data, current_count
+            text_content = response.text or ""
+            if text_content.strip():
+                # 检查明文是否包含有效协议
+                if any(protocol in text_content for protocol in detection_protocols):
+                    return text_content, False
+        except (UnicodeDecodeError, AttributeError):
+            # 明文解码失败，继续尝试base64
+            pass
 
-
-# Function to decode directory links with a timeout and config limit
-def decode_dir_links(dir_links, max_configs, current_count=0):
-    decoded_dir_links = []
-    for link in dir_links:
-        if current_count >= max_configs:
-            break
+        # 策略2: Base64解码尝试
         try:
-            response = requests.get(link, timeout=TIMEOUT)
-            decoded_text = response.text
-            if decoded_text:
-                decoded_dir_links.append(decoded_text)
-                # Rough estimate of configs in this source
-                lines = decoded_text.strip().split("\n")
-                config_lines = [
-                    line
-                    for line in lines
-                    if line.strip() and not line.strip().startswith("#")
-                ]
-                current_count += len(config_lines)
-        except requests.RequestException:
-            pass  # If the request fails or times out, skip it
-    return decoded_dir_links, current_count
+            decoded_b64 = decode_base64(content_bytes)
+            if decoded_b64 and decoded_b64.strip():
+                # 检查base64解码结果是否包含有效协议
+                if any(protocol in decoded_b64 for protocol in detection_protocols):
+                    return decoded_b64, True
+        except Exception:
+            # Base64解码失败
+            pass
+
+        # 如果明文和base64都不包含有效协议，返回空内容
+        return "", False
+
+    except Exception:
+        # 所有解码方式都失败，返回空内容
+        return "", False
 
 
-# 新增：依据内容来判定是否为 base64 订阅并完成解码，返回合并后的文本
-def fetch_and_decode(urls, max_configs):
-    protocols = ["vmess://", "vless://", "trojan://", "ss://", "ssr://", "hy2://"]
-    decoded_chunks = []
-    current_count = 0
+# 获取、解码并逐行过滤配置函数
+def fetch_decode_and_filter(urls, protocols, max_configs):
+    """
+    获取、解码并逐行过滤配置.
+    - 遍历URL，获取内容
+    - 自动判断base64或明文并解码
+    - 逐行进行协议过滤和去重（Protocol+Host+Port + 完全匹配双重去重）
+    """
+    filtered_data = []
+    seen_configs = set()  # 完全匹配去重
+    seen_endpoints = set()  # Protocol+Host+Port去重
+    config_count = 0
     base64_sources = 0
     direct_sources = 0
 
+    def is_base64_encoded(data_part):
+        """判断协议头后面的内容是否为base64编码"""
+        try:
+            # 简单的base64检测：长度是4的倍数，且只包含base64字符
+            if len(data_part) % 4 != 0:
+                return False
+            # 检查是否包含base64字符集
+            import string
+
+            base64_chars = string.ascii_letters + string.digits + "+/="
+            return all(c in base64_chars for c in data_part)
+        except:
+            return False
+
+    def extract_host_port_from_config(config_line):
+        """从配置行提取Protocol+Host+Port，使用统一的解析器"""
+        try:
+            parser = ProxyParser()
+            result = parser.parse_config_line(config_line)
+
+            if result and result.get("host") and result.get("port"):
+                protocol = result.get("protocol", "unknown")
+                host = result["host"]
+                port = result["port"]
+                return f"{protocol}_{host}_{port}"
+            return None
+        except Exception as e:
+            print(f"提取host:port失败: {e}")
+            return None
+
+    def should_add_config(config_line):
+        """双重去重检查：完全匹配 + Protocol+Host+Port"""
+        # 第一层：完全匹配去重
+        if config_line in seen_configs:
+            return False
+
+        # 第二层：Protocol+Host+Port去重
+        endpoint_key = extract_host_port_from_config(config_line)
+        if not endpoint_key:
+            return False
+
+        if endpoint_key in seen_endpoints:
+            return False
+
+        # 通过双重检查，添加到去重集合
+        seen_configs.add(config_line)
+        seen_endpoints.add(endpoint_key)
+        return True
+
+    detection_protocols = [p + "://" for p in protocols]
+
     for url in urls:
-        if current_count >= max_configs:
+        if config_count >= max_configs:
             break
         try:
             resp = requests.get(url, timeout=TIMEOUT)
-            content_bytes = resp.content
 
-            # 尝试作为 base64 解码
-            decoded_b64 = decode_base64(content_bytes)
-            is_b64 = bool(decoded_b64) and any(p in decoded_b64 for p in protocols)
+            # 使用智能解码函数
+            decoded_text, is_base64_source = smart_decode_content(
+                resp, detection_protocols
+            )
 
-            if is_b64:
-                decoded_chunks.append(decoded_b64)
+            if is_base64_source:
                 base64_sources += 1
-                # 估算当前源中的配置行数量
-                lines = decoded_b64.strip().split("\n")
-                config_lines = [
-                    line
-                    for line in lines
-                    if line.strip() and not line.strip().startswith("#")
-                ]
-                current_count += len(config_lines)
-            else:
-                # 按明文处理
-                text = resp.text or ""
-                if text:
-                    decoded_chunks.append(text)
-                    direct_sources += 1
-                    lines = text.strip().split("\n")
-                    config_lines = [
-                        line
-                        for line in lines
-                        if line.strip() and not line.strip().startswith("#")
-                    ]
-                    current_count += len(config_lines)
+            elif decoded_text:  # 只有当有内容时才计为direct source
+                direct_sources += 1
+
+            if decoded_text:
+                lines = decoded_text.strip().split("\n")
+                for line in lines:
+                    if config_count >= max_configs:
+                        break
+
+                    line = line.strip()
+                    # 仅保留有效协议行，非空且非注释
+                    if (
+                        not line
+                        or not any(p in line for p in protocols)
+                        or line.startswith("#")
+                    ):
+                        continue
+
+                    # 双重去重检查：完全匹配 + Protocol+Host+Port
+                    if should_add_config(line):
+                        filtered_data.append(line)
+                        config_count += 1
+
         except requests.RequestException:
             # 忽略失败的源
             pass
 
-    return decoded_chunks, current_count, base64_sources, direct_sources
-
-
-# Filter function to select lines based on specified protocols and remove duplicates (only for config lines)
-def filter_for_protocols(data, protocols, max_configs):
-    filtered_data = []
-    seen_configs = set()  # 原有的完全匹配去重
-    seen_endpoints = set()  # 新增：endpoint去重 (protocol+host+port)
-    config_count = 0
-
-    def get_endpoint_key(config_line):
-        """提取节点的endpoint标识：protocol+host+port"""
-        import re
-
-        try:
-            patterns = [
-                (
-                    r"(vless|vmess|trojan)://[^@]*@([^:/]+):(\d+)",
-                    lambda m: f"{m.group(1)}_{m.group(2)}_{m.group(3)}",
-                ),
-                (
-                    r"(ss|ssr)://[^@]*@([^:/]+):(\d+)",
-                    lambda m: f"{m.group(1)}_{m.group(2)}_{m.group(3)}",
-                ),
-            ]
-            for pattern, formatter in patterns:
-                match = re.search(pattern, config_line)
-                if match:
-                    return formatter(match)
-        except:
-            pass
-        return None
-
-    for content in data:
-        if config_count >= max_configs:
-            break
-        if content and content.strip():
-            lines = content.strip().split("\n")
-            for line in lines:
-                if config_count >= max_configs:
-                    break
-                line = line.strip()
-                # 仅保留配置行，不保留来源注释
-                if any(p in line for p in protocols) and line:
-                    if line not in seen_configs:
-                        endpoint_key = get_endpoint_key(line)
-                        if not endpoint_key or endpoint_key not in seen_endpoints:
-                            filtered_data.append(line)
-                            seen_configs.add(line)
-                            if endpoint_key:
-                                seen_endpoints.add(endpoint_key)
-                            config_count += 1
-    return filtered_data
+    return filtered_data, config_count, base64_sources, direct_sources
 
 
 # Create necessary directories if they don't exist
@@ -207,7 +205,7 @@ def checkURL(url):
     return r.status_code // 100 == 2
 
 
-# 新增：封装为函数，并使用绝对路径 + ScrapURL 统计“数量”
+# 封装为函数，并使用绝对路径 + ScrapURL 统计"数量"
 def update_resources_status():
     print("开始检测Resources.md文件中的URL状态...")
     base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -265,6 +263,9 @@ def update_resources_status():
 
             try:
                 resp_val = int(cells[1])
+                # 添加数据修正逻辑：如果 responsibility 值异常大，重置为 5
+                if resp_val > 5:  # responsibility 不应该超过 5
+                    resp_val = 5
             except (ValueError, IndexError):
                 resp_val = 5
 
@@ -303,6 +304,7 @@ def update_resources_status():
 def load_links_from_resources():
     """从Resources文件中提取URL链接（只收集✅可用的URL，不在此处分类）"""
     urls = []
+    seen_urls = set()  # 添加去重集合
 
     # 先更新Resources文件状态
     update_resources_status()
@@ -355,8 +357,10 @@ def load_links_from_resources():
                         and url
                         and url.startswith(("http://", "https://"))
                         and len(url) > 10
+                        and url not in seen_urls  # 添加去重检查
                     ):
                         urls.append(url)
+                        seen_urls.add(url)  # 记录已处理的URL
 
     except FileNotFoundError:
         print("警告：Resources.md文件未找到，返回空链接列表")
@@ -365,9 +369,17 @@ def load_links_from_resources():
         print(f"读取Resources.md文件时出错：{e}")
         urls = []
 
-    print(
-        f"从Resources.md文件中提取到 {len(urls)} 个可用链接（将按内容自动判定 base64 或明文）"
-    )
+    # 更新输出信息，显示去重效果
+    total_found = len(seen_urls) if seen_urls else len(urls)
+    duplicate_count = total_found - len(urls) if seen_urls else 0
+
+    if duplicate_count > 0:
+        print(
+            f"从Resources.md文件中提取到 {len(urls)} 个可用链接（去重前: {total_found + duplicate_count}，去除重复: {duplicate_count}）"
+        )
+    else:
+        print(f"从Resources.md文件中提取到 {len(urls)} 个可用链接（无重复URL）")
+
     return urls
 
 
@@ -380,19 +392,19 @@ def main():
 
     output_folder = ensure_directories_exist()
 
-    print("Starting to fetch and process configs...")
+    print("Starting to fetch, process, and filter configs...")
 
-    # 基于内容自动判定 base64/明文并解码
-    decoded_sources, config_count, b64_src_cnt, direct_src_cnt = fetch_and_decode(
-        urls, MAX_CONFIGS
-    )
+    # 获取、解码并逐行过滤配置
+    (
+        merged_configs,
+        config_count,
+        b64_src_cnt,
+        direct_src_cnt,
+    ) = fetch_decode_and_filter(urls, protocols, MAX_CONFIGS)
     print(
-        f"Decoded by content type: {b64_src_cnt} base64 sources, {direct_src_cnt} direct text sources, estimated {config_count} configs"
+        f"Processed sources: {b64_src_cnt} base64, {direct_src_cnt} direct text. "
+        f"Found {config_count} unique configs."
     )
-
-    print("Combining and filtering configs...")
-    merged_configs = filter_for_protocols(decoded_sources, protocols, MAX_CONFIGS)
-    print(f"Found {len(merged_configs)} unique configs after filtering")
 
     # Write merged configs to output file
     print("Writing main config file...")

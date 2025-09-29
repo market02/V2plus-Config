@@ -110,11 +110,11 @@ jobs:
           # ---------- GitCode ----------
           git clone git@gitcode.com:amessboy/DeployData.git gitcode-deploy
           cd gitcode-deploy
-          cp ../All_Configs_Sub_valid.txt.encrypted ./result
-          cp ../All_Configs_Sub_valid.txt ./result2
-          [[ -d ../US_CA ]] && cp -r ../data/US_CA ./US_CA || true
-          [[ -d ../EU_JP_KR ]] && cp -r ../data/EU_JP_KR ./EU_JP_KR || true
-          [[ -d ../Other ]] && cp -r ../data/Other ./Other || true
+          cp ../data/All_Configs_Sub_valid.txt.encrypted ./result
+          cp ../data/All_Configs_Sub_valid.txt ./result2
+          [[ -d ../data/US_CA ]] && cp -r ../data/US_CA ./US_CA || true
+          [[ -d ../data/EU_JP_KR ]] && cp -r ../data/EU_JP_KR ./EU_JP_KR || true
+          [[ -d ../data/Other ]] && cp -r ../data/Other ./Other || true
           git add .
           git commit -m "Update encrypted configs from GitHub Actions" || echo "No changes to commit"
           git pull --strategy-option=theirs && git push
@@ -123,11 +123,11 @@ jobs:
           # ---------- Gitee ----------
           git clone git@gitee.com:amessboy/DeployData.git gitee-deploy
           cd gitee-deploy
-          cp ../All_Configs_Sub_valid.txt.encrypted ./result
-          cp ../All_Configs_Sub_valid.txt ./result2
-          [[ -d ../US_CA ]] && cp -r ../data/US_CA ./US_CA || true
-          [[ -d ../EU_JP_KR ]] && cp -r ../data/EU_JP_KR ./EU_JP_KR || true
-          [[ -d ../Other ]] && cp -r ../data/Other ./Other || true
+          cp ../data/All_Configs_Sub_valid.txt.encrypted ./result
+          cp ../data/All_Configs_Sub_valid.txt ./result2
+          [[ -d ../data/US_CA ]] && cp -r ../data/US_CA ./US_CA || true
+          [[ -d ../data/EU_JP_KR ]] && cp -r ../data/EU_JP_KR ./EU_JP_KR || true
+          [[ -d ../data/Other ]] && cp -r ../data/Other ./Other || true
           git add .
           git commit -m "Update encrypted configs from GitHub Actions" || echo "No changes to commit"
           git pull --strategy-option=theirs && git push

@@ -4,8 +4,8 @@
 
 | available | responsibility | proxy count | updated every | url |
 |:---------:|:--------------:|:-------------:|:-------------:|:----|
-| ✅ | 5 | 21 | 4h | https://raw.githubusercontent.com/ALIILAPRO/v2rayNG-Config/main/sub.txt |
-| ✅ | 5 | 95 | 1h | https://raw.githubusercontent.com/aiboboxx/v2rayfree/main/v2 |
+| ✅ | 5 | 68 | 4h | https://raw.githubusercontent.com/ALIILAPRO/v2rayNG-Config/main/sub.txt |
+| ✅ | 5 | 53 | 1h | https://raw.githubusercontent.com/aiboboxx/v2rayfree/main/v2 |
 <!--| ✅ | 5 | 3 | 12h | https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/refs/heads/main/mtn/sub_1.txt |
 | ✅ | 5 | 30 | 2h | https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/refs/heads/main/mtn/sub_2.txt |
 | ✅ | 5 | 0 | 2h | https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/refs/heads/main/mtn/sub_3.txt |

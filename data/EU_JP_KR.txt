@@ -1,13 +1,4 @@
-vless://14495465-b6da-4530-95f7-e6f2965af44a@80.74.29.212:8443?security=reality&fp=chrome&type=tcp&flow=xtls-rprx-vision&pbk=rYlvwQDrFYsAbcD9-3-PtXlAR084YpNL5_Q8Dx9NvTA&sni=google.com#VPNKEY-Netherlands
 vless://4b1c3b24-ae03-4559-98fb-3ef706359cd5@85.158.110.62:8443?security=reality&fp=chrome&type=tcp&flow=xtls-rprx-vision&pbk=sOjlAEcrubT3nuRzox3bAkQSptuLhelt7CykvSZXW3I&sni=google.com#VPNKEY-Netherlands
+vless://14495465-b6da-4530-95f7-e6f2965af44a@80.74.29.212:8443?security=reality&fp=chrome&type=tcp&flow=xtls-rprx-vision&pbk=rYlvwQDrFYsAbcD9-3-PtXlAR084YpNL5_Q8Dx9NvTA&sni=google.com#VPNKEY-Netherlands
 vless://Parsashonam-254@185.146.173.39:8880?path=%2F&security=none&encryption=none&host=Search.DigiKala.CYoU.&type=httpupgrade#%40v2Meli
-vless://ed87c882-17f3-491a-810c-c0000e4b279e@zmaoz.faculty.ucdavis.edu:80?encryption=none&security=none&type=ws&host=foffmelo.com&path=%2Folem%2Fws%3Fed%3D1024#%40v2Meli
-trojan://253bc477d4e43c209f2d427272968280@126.116.225.149:443?allowInsecure=1&sni=www.nintendogames.net#%E9%A6%99%E6%B8%AF4%7C%40ripaojiedian
 vless://738c5a04-817a-4f50-b327-893595010155@all32-vip.f-sub.com:2434?security=reality&encryption=none&pbk=yGgU4VVwpWk3sY54VgDxYVg77n5i-4jduHegq6PqPyA&headerType=none&fp=chrome&type=tcp&sni=chess.com#%DA%A9%D8%A7%D9%86%D9%81%DB%8C%DA%AF%20%D8%A7%D9%82%D8%AA%D8%B5%D8%A7%D8%AF%DB%8C%20%D9%88%20%D8%A8%D8%A7%20%DA%A9%DB%8C%D9%81%DB%8C%D8%AA%20%3A%20%F0%9F%9A%80Notrika_vpn%40📍
-trojan://253bc477d4e43c209f2d427272968280@160.16.130.66:2045?allowInsecure=1&sni=www.nintendogames.net#%E6%96%B0%E5%8A%A0%E5%9D%A1%7C%40ripaojiedian
-vmess://eyJ2IjogIjIiLCAicHMiOiAi8J+HsPCfh7cg6Z+p5Zu9fEByaXBhb2ppZWRpYW4iLCAiYWRkIjogIjQ1Ljk0LjY4LjEzIiwgInBvcnQiOiAxMDc1NSwgImFpZCI6IDAsICJzY3kiOiAiYXV0byIsICJuZXQiOiAidGNwIiwgInR5cGUiOiAibm9uZSIsICJ0bHMiOiAiIiwgImlkIjogImE4NDRiMjg5LTZmZDctNDA3Yi04MzEyLWQ2MDBlYzJlZmNkNCJ9
-vless://b65f4df7-f6af-42b2-877a-cef33f21675e@109.107.181.38:443?allowInsecure=0&sni=kejiland.freewarp.eu.org&type=ws&host=kejiland.freewarp.eu.org&path=/snippets/ip=proxyip.fxxk.dedyn.io:443?ed=2560security=tls#DE_speednode_0002
-vless://0ec8c120-33fa-4658-9bed-3a51cb04c55c@net2026.zanddynastyofpersia.org:443?allowInsecure=0&sni=net2026.zanddynastyofpersia.org&type=ws&host=net2026.zanddynastyofpersia.org&path=/eJsVXFVZ6iavNx1EFxOyH861WHfp=chrome&security=tls#DE_speednode_0003
-vless://b65f4df7-f6af-42b2-877a-cef33f21675e@185.16.110.32:2096?allowInsecure=0&sni=kejiland.freewarp.eu.org&type=ws&host=kejiland.freewarp.eu.org&path=/snippetsfp=chrome&security=tls#FR_speednode_0005
-vless://b65f4df7-f6af-42b2-877a-cef33f21675e@141.11.203.32:2096?allowInsecure=0&sni=kejiland.freewarp.eu.org&type=ws&host=kejiland.freewarp.eu.org&path=/snippetssecurity=tls#FR_speednode_0006
-vless://b65f4df7-f6af-42b2-877a-cef33f21675e@195.13.45.32:2096?allowInsecure=0&sni=kejiland.freewarp.eu.org&type=ws&host=kejiland.freewarp.eu.org&path=/snippetssecurity=tls#US_speednode_0033

@@ -29,18 +29,17 @@ jobs:
           python-version: "3.11"
 
       - name: Install dependencies
-        working-directory: Files
         run: pip install -r requirements.txt
 
       - name: Run Python scripts
-        working-directory: Files
+        working-directory: src
         run: |
           python app.py
           # python sort.py
 
       # 连通性检测和清理无效配置
       - name: Check connectivity and clean invalid configs
-        working-directory: Files
+        working-directory: src
         env:
           CONNECT_TIMEOUT: "10"
         run: |
@@ -50,7 +49,7 @@ jobs:
 
       # 加密：主文件必做，区域文件存在才做
       - name: Encrypt valid configs with AES
-        working-directory: Files
+        working-directory: src
         run: |
           # 主文件加密（始终存在）
           python encrypt_service.py --password "${{ secrets.AES_PASSWORD }}"
@@ -58,15 +57,15 @@ jobs:
           # 区域文件：存在才加密
           [[ -f US_CA.txt ]] && python encrypt_service.py \
             --password "${{ secrets.AES_PASSWORD }}" \
-            --input "./US_CA.txt" --output "../US_CA" || true
+            --input "./data/US_CA.txt" --output "../data/US_CA" || true
 
           [[ -f EU_JP_KR.txt ]] && python encrypt_service.py \
             --password "${{ secrets.AES_PASSWORD }}" \
-            --input "./EU_JP_KR.txt" --output "../EU_JP_KR" || true
+            --input "./data/EU_JP_KR.txt" --output "../data/EU_JP_KR" || true
 
           [[ -f Other.txt ]] && python encrypt_service.py \
             --password "${{ secrets.AES_PASSWORD }}" \
-            --input "./Other.txt" --output "../Other" || true
+            --input "./data/Other.txt" --output "../data/Other" || true
 
       - name: Commit and push changes
         uses: EndBug/add-and-commit@v9
@@ -113,9 +112,9 @@ jobs:
           cd gitcode-deploy
           cp ../All_Configs_Sub_valid.txt.encrypted ./result
           cp ../All_Configs_Sub_valid.txt ./result2
-          [[ -d ../US_CA ]] && cp -r ../US_CA ./US_CA || true
-          [[ -d ../EU_JP_KR ]] && cp -r ../EU_JP_KR ./EU_JP_KR || true
-          [[ -d ../Other ]] && cp -r ../Other ./Other || true
+          [[ -d ../US_CA ]] && cp -r ../data/US_CA ./US_CA || true
+          [[ -d ../EU_JP_KR ]] && cp -r ../data/EU_JP_KR ./EU_JP_KR || true
+          [[ -d ../Other ]] && cp -r ../data/Other ./Other || true
           git add .
           git commit -m "Update encrypted configs from GitHub Actions" || echo "No changes to commit"
           git pull --strategy-option=theirs && git push
@@ -126,9 +125,9 @@ jobs:
           cd gitee-deploy
           cp ../All_Configs_Sub_valid.txt.encrypted ./result
           cp ../All_Configs_Sub_valid.txt ./result2
-          [[ -d ../US_CA ]] && cp -r ../US_CA ./US_CA || true
-          [[ -d ../EU_JP_KR ]] && cp -r ../EU_JP_KR ./EU_JP_KR || true
-          [[ -d ../Other ]] && cp -r ../Other ./Other || true
+          [[ -d ../US_CA ]] && cp -r ../data/US_CA ./US_CA || true
+          [[ -d ../EU_JP_KR ]] && cp -r ../data/EU_JP_KR ./EU_JP_KR || true
+          [[ -d ../Other ]] && cp -r ../data/Other ./Other || true
           git add .
           git commit -m "Update encrypted configs from GitHub Actions" || echo "No changes to commit"
           git pull --strategy-option=theirs && git push

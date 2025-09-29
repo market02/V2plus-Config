@@ -7,7 +7,7 @@ ROOT_DIR = os.path.dirname(os.path.dirname(__file__))
 if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
 
-from Files.encrypt_service import EncryptService
+from src.encrypt_service import EncryptService
 
 
 @pytest.fixture
@@ -29,7 +29,9 @@ def expected_encrypted_result() -> str:
         return f.read()
 
 
-def test_encrypt_aes_with_known_vector(service: EncryptService, sample_file_path: str, expected_encrypted_result: str):
+def test_encrypt_aes_with_known_vector(
+    service: EncryptService, sample_file_path: str, expected_encrypted_result: str
+):
     # 保留原始换行（CRLF），与原行为统一
     with open(sample_file_path, "r", encoding="utf-8", newline="") as f:
         test_data = f.read()
@@ -38,7 +40,9 @@ def test_encrypt_aes_with_known_vector(service: EncryptService, sample_file_path
     assert actual_result == expected_encrypted_result
 
 
-def test_encrypt_file_with_known_vector(  service: EncryptService,   sample_file_path: str,  expected_encrypted_result: str):
+def test_encrypt_file_with_known_vector(
+    service: EncryptService, sample_file_path: str, expected_encrypted_result: str
+):
     expected_output_path = sample_file_path + ".encrypted"
 
     # 清理历史输出，避免干扰

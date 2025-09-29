@@ -1,96 +1,154 @@
-# 🔒 Free V2ray Config 🌐
-💻 This repository contains a collection of free V2ray configuration files that you can use with your V2ray client to access the internet securely and anonymously.
+# 🔒 V2plus-Config - 免费V2ray配置自动化管理系统 🌐
+💻 这是一个自动化的V2ray配置文件收集管理、验证、分类和加密系统，提供高质量的免费V2ray配置文件，支持全球多地区节点分类和自动连通性检测，最后将加密后的配置文件上传到国内的gitcode和gitee，使得用户可以在没有代理的情况下也能获取配置文件。
 
-[ورژن فارسی](https://github.com/barry-far/V2ray-config/blob/main/Persian-README.md) | [中文版](https://github.com/barry-far/V2ray-config/blob/main/Chinese-README.md) | [Русская версия](https://github.com/barry-far/V2ray-config/blob/main/Russian-README.md) | [Türkçe Versiyon](https://github.com/barry-far/V2ray-config/blob/main/Turkish-README.md)
+![GitHub last commit](https://img.shields.io/github/last-commit/barry-far/V2ray-config.svg) [![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/) [![GitHub stars](https://img.shields.io/github/stars/barry-far/V2ray-config.svg)](https://github.com/barry-far/V2ray-config/stargazers) [![Update Configs](https://github.com/barry-far/V2ray-config/actions/workflows/main.yml/badge.svg)](https://github.com/barry-far/V2ray-config/actions/workflows/main.yml) ![GitHub repo size](https://img.shields.io/github/repo-size/barry-far/V2ray-config)
 
-![GitHub last commit](https://img.shields.io/github/last-commit/barry-far/V2ray-config.svg) [![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/) [![GitHub stars](https://img.shields.io/github/stars/barry-far/V2ray-config.svg)](https://github.com/barry-far/V2ray-config/stargazers) [![Update Configs](https://github.com/barry-far/V2ray-config/actions/workflows/main.yml/badge.svg)](https://github.com/barry-far/V2ray-config/actions/workflows/main.yml) ![GitHub repo size](https://img.shields.io/github/repo-size/barry-far/V2ray-config)  
+## ✨ 功能特性
 
+### 🔄 自动化配置管理
+- **多源聚合**: 从多个开源项目自动收集V2ray配置
+- **更新管理**: 判断url的可访问性，反写其状态到所在文件中的表格
+- **智能去重**: 基于配置内容的智能去重算法
+- **协议支持**: 支持vmess、vless、trojan、ss、ssr、hy2等主流协议
+- **定时更新**: 每6小时自动更新配置文件
 
+### 🌍 地理位置分类
+- **智能分区**: 自动将节点按地理位置分类
+- **US_CA**: 美国/加拿大节点
+- **EU_JP_KR**: 欧洲/日本/韩国节点
+- **Other**: 其他地区节点
+- **IP地理定位**: 基于IP地址的精确地理位置识别
 
+### 🔍 连通性检测
+- **并行检测**: 高性能多线程连通性验证
+- **超时控制**: 可配置的连接超时时间
+- **有效性过滤**: 自动过滤无效和不可用的配置
+- **实时状态**: 实时更新配置文件状态
 
-## Usage
-👉 To use one of these configurations, simply open the configs.txt file located in the root directory. This file contains a list of links to various 2ray configuration files that you can use with your V2ray client. Copy [THIS LINK](https://raw.githubusercontent.com/barry-far/V2ray-config/main/All_Configs_Sub.txt) link of the configuration file you want to use from the configs.txt file and import it into your V2ray client. Refer to your client's documentation for more information on how to do this.
+### 🔐 安全加密
+- **AES加密**: 使用AES-256-CBC加密算法
+- **密钥管理**: 支持自定义加密密码
+- **批量加密**: 自动加密所有配置文件
+- **兼容性**: 与C#版本完全兼容的加密实现
 
+### 📤 推送到 gitcode 和 gitee
+- **自动同步**: 每6小时自动将加密后的配置文件同步到gitcode和gitee
+- **镜像存储**: 国内用户可以直接从gitcode/gitee获取配置文件，无需代理
 
-❕If upper link didnt work for you , use this link instead : [All_Config_base64_Sub.txt](https://raw.githubusercontent.com/barry-far/V2ray-config/main/All_Configs_base64_Sub.txt)
+## 🔄 工作流程
+1. **配置收集阶段** (`app.py`)
+   - 从 `Resources.md` 加载配置源URL列表
+   - 并行请求所有配置源
+   - 自动检测base64编码和直接文本格式
+   - 按协议类型解析和验证配置
 
-Just Copy these links to your client to use :
+2. **连通性检测阶段** (`connectivity_checker.py`)
+   - 多线程并行检测配置连通性
+   - 过滤无效和不可达的配置
+   - 生成有效配置文件
 
-Subscription 1: https://raw.githubusercontent.com/barry-far/V2ray-config/main/Sub1.txt
+3. **地理分类阶段** (`connectivity_checker.py`)
+   - 基于IP地址进行地理位置查询
+   - 按地区分类生成区域配置文件
+   - 支持美国/加拿大、欧洲/日韩、其他地区
 
-<img width="200" height="200" alt="frame" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://raw.githubusercontent.com/barry-far/V2ray-config/main/Sub1.txt" />
+4. **加密处理阶段** (`encrypt_service.py`)
+   - 使用AES-256-CBC算法加密所有配置文件
+   - 生成加密版本供安全分发
+   - 支持自定义加密密码
 
-Subscription 2: https://raw.githubusercontent.com/barry-far/V2ray-config/main/Sub2.txt
+5. **自动化部署** (GitHub Actions)
+   - 每6小时自动执行完整流程
+   - 自动提交更新到仓库
+   - 支持多平台镜像同步
 
-<img width="200" height="200" alt="frame" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://raw.githubusercontent.com/barry-far/V2ray-config/main/Sub2.txt" />
+## 📁 项目结构
+├── .github/workflows/     # GitHub Actions 工作流
+├── docs/                  # 项目文档
+│   └── Resources.md       # 配置源管理
+├── data/                  # 配置数据文件
+├── src/                   # 源代码
+│   ├── app.py            # 主程序
+│   ├── connectivity_checker.py  # 连通性检测
+│   ├── encrypt_service.py       # 加密服务
+│   └── proxy_parsers.py         # 代理解析器
+├── tests/                # 测试文件
+└── requirements.txt      # 项目依赖
 
-Subscription 3: https://raw.githubusercontent.com/barry-far/V2ray-config/main/Sub3.txt
+## 🚀 使用方法
 
-<img width="200" height="200" alt="frame" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://raw.githubusercontent.com/barry-far/V2ray-config/main/Sub3.txt" />
+### 📲 客户端配置
 
-Subscription 4: https://raw.githubusercontent.com/barry-far/V2ray-config/main/Sub4.txt
+#### 💻 Windows 和 🐧 Linux
+推荐使用 [Nekoray](https://github.com/MatsuriDayo/nekoray) 或 [V2rayN](https://github.com/2dust/v2rayN)：
 
-<img width="200" height="200" alt="frame" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://raw.githubusercontent.com/barry-far/V2ray-config/main/Sub4.txt" />
+**主配置订阅链接**:https://raw.githubusercontent.com/barry-far/V2ray-config/main/All_Configs_Sub.txt
 
-Subscription 5: https://raw.githubusercontent.com/barry-far/V2ray-config/main/Sub5.txt
+**区域分类订阅链接**:
+- 美国/加拿大: `https://raw.githubusercontent.com/barry-far/V2ray-config/main/US_CA.txt`
+- 欧洲/日韩: `https://raw.githubusercontent.com/barry-far/V2ray-config/main/EU_JP_KR.txt`
+- 其他地区: `https://raw.githubusercontent.com/barry-far/V2ray-config/main/Other.txt`
 
-<img width="200" height="200" alt="frame" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://raw.githubusercontent.com/barry-far/V2ray-config/main/Sub5.txt" />
+#### 🤖 Android
+推荐使用 [V2rayNG](https://github.com/2dust/v2rayNG) 或 [HiddifyNG](https://github.com/hiddify/HiddifyNG)
 
-Subscription 6: https://raw.githubusercontent.com/barry-far/V2ray-config/main/Sub6.txt
+#### 🍎 Mac 和 📱 iOS
+推荐使用 [Streisand](https://apps.apple.com/us/app/streisand/id6450534064) 或 [ShadowRocket](https://apps.apple.com/ca/app/shadowrocket/id932747118)
 
-<img width="200" height="200" alt="frame" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://raw.githubusercontent.com/barry-far/V2ray-config/main/Sub6.txt" />
+### 🛠️ 本地开发
 
-Subscription 7: https://raw.githubusercontent.com/barry-far/V2ray-config/main/Sub7.txt
+#### 环境要求
+- Python 3.11+
+- pip 包管理器
 
-<img width="200" height="200" alt="frame" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://raw.githubusercontent.com/barry-far/V2ray-config/main/Sub7.txt" />
+#### 安装依赖
+```bash
+cd src
+pip install -r requirements.txt
+```
 
-Subscription 8: https://raw.githubusercontent.com/barry-far/V2ray-config/main/Sub8.txt
+#### 运行程序
+```bash
+# 1. 收集和处理配置
+python app.py
 
-<img width="200" height="200" alt="frame" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://raw.githubusercontent.com/barry-far/V2ray-config/main/Sub8.txt" />
+# 2. 连通性检测和分类
+python connectivity_checker.py
 
-🔒 To ensure the best possible performance and security, we recommend subscribing to our latest configurations using the subscription link feature. Simply copy the subscription link from the configs.txt file and paste it into your V2ray client to receive automatic updates every 10 minutes.
+# 3. 手动加密（可选）
+python encrypt_service.py --input ../data/All_Configs_Sub_valid.txt
+```
 
-🗂️ For easier configuration management, we have split the configuration files into individual files for each protocol and added them to the Splitted folder. To have easy access to separated Configs use this: 
+#### 环境变量配置
+```bash
+# 连接超时时间（秒）
+export CONNECT_TIMEOUT=10
 
-Vmess: https://raw.githubusercontent.com/barry-far/V2ray-config/main/Splitted-By-Protocol/vmess.txt
+# 加密密码
+export ENCRYPT_PASSWORD=your_password
+```
 
-Vless: https://raw.githubusercontent.com/barry-far/V2ray-config/main/Splitted-By-Protocol/vless.txt
+## ⚙️ 配置文件
 
-Trojan: https://raw.githubusercontent.com/barry-far/V2ray-config/main/Splitted-By-Protocol/trojan.txt
+### 📋 配置源管理 (`docs/Resources.md`)
+配置源列表采用Markdown表格格式：
 
-ShadowSocks: https://raw.githubusercontent.com/barry-far/V2ray-config/main/Splitted-By-Protocol/ss.txt
+```markdown
+| available | responsibility | proxy count | updated every | url |
+|:---------:|:--------------:|:-------------:|:-------------:|:----|
+| ✅ | 5 | 68 | 4h | https://example.com/config.txt |
+```
 
-ShadowSocksR: https://raw.githubusercontent.com/barry-far/V2ray-config/main/Splitted-By-Protocol/ssr.txt
+- `available`: 可用状态 (✅/❌)
+- `responsibility`: 可靠性评分 (1-5)
+- `proxy count`: 配置数量
+- `updated every`: 更新频率
+- `url`: 配置源URL
 
-❕If upper links didnt work for you, Checkout this folder: [Base64 Folder](https://github.com/barry-far/V2ray-config/tree/dev/Base64)
-
-ℹ️ Additionally, we have created a Wiki with detailed instructions on how to set up V2ray on different operating systems. Visit our Wiki for more information.
-
-## Requirements and How to Use
-📲 Here are best ways to use V2ray on different operating systems:
-
-### 💻 Windows and 🐧 Linux
-On Windows, we recommend using [Nekoray](https://github.com/MatsuriDayo/nekoray) or [V2rayN](https://github.com/2dust/v2rayN) client. To import a configuration file in `nekoray`, simply open the app then on the Program icon, select "Add profile from clipboard", and paste the configuration link. To import a configuration file in `V2rayN`, simply right-click on the V2rayN icon in the system tray, select "Import from clipboard", and paste the configuration link. For the official client, click on the "V" icon in the system tray and select "Import Config".
-
-### 🤖 Android
-On Android, we recommend using [V2rayNG](https://github.com/2dust/v2rayNG) or [HiddifyNG](https://github.com/hiddify/HiddifyNG) or [NekoBox](https://github.com/MatsuriDayo/NekoBoxForAndroid). To import a configuration file, open the app and click on the "+" icon in the bottom right corner. Then, select "Import Config from Clipboard" and paste the configuration link.
-
-### 🍎 Mac and 📱 iOS
-On you Apple Device, we recommend using the [Streisand](https://apps.apple.com/us/app/streisand/id6450534064). To import the subscription link, simply open the app then at the yop of the page click "+" and choose "import from clipboard" then test configs with holding "subscription" part and choose "Latency" to check all configs. At the end, choose first config & connect.
-
-You can also use these apps : [Foxray](https://apps.apple.com/us/app/foxray/id6448898396) , [ShadowRocket](https://apps.apple.com/ca/app/shadowrocket/id932747118) , [V2BOX](https://apps.apple.com/us/app/v2box-v2ray-client/id6446814690) , [Streisand](https://apps.apple.com/us/app/streisand/id6450534064)
-
-## Contributing
-✍️ If you have a V2ray configuration file that you would like to contribute to this repository, simply create a new pull request and we will review it.
-
-## License
-📝 This repository is licensed under the MIT license. See LICENSE for more information.
-
-## Contact
-🙋‍♀️ If you have any questions or concerns, please feel free to reach out to us via our discussions tracker.
-
-## Special Thanks To
-[@ircfspace](https://github.com/MrPooyaX)
-[@hossein-mohseni](https://github.com/hossein-mohseni)
-[@mahdibland](https://github.com/mahdibland)
-[@MrPooyaX](https://github.com/MrPooyaX)
+### 🔧 依赖包 (`requirements.txt`)
+pybase64          # Base64编解码
+requests          # HTTP请求
+cryptography      # 加密算法
+pytest            # 单元测试
+proxyUtil         # 代理工具库
+datetime          # 时间处理

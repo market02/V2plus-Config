@@ -28,7 +28,7 @@ class V2rayConfigChecker:
     def clean_config_line(self, config_line):
         """清理配置行，去除脏字符，返回清理后的配置行"""
         return self.parser.clean_config_line(config_line)
-    
+
     def parse_config_line(self, config_line):
         """解析V2ray配置行，提取IP、端口等信息"""
         return self.parser.parse_config_line(config_line)
@@ -119,14 +119,48 @@ class V2rayConfigChecker:
         if not code:
             return set()
         code = code.upper()
-        
+
         # 欧洲国家代码
         eu_codes = {
-            "DE", "FR", "IT", "ES", "NL", "BE", "AT", "CH", "SE", "NO", "DK", "FI", 
-            "PL", "CZ", "HU", "RO", "BG", "HR", "SI", "SK", "LT", "LV", "EE", "IE", 
-            "PT", "GR", "CY", "MT", "LU", "IS", "LI", "MC", "SM", "VA", "AD", "GB", "UK"
+            "DE",
+            "FR",
+            "IT",
+            "ES",
+            "NL",
+            "BE",
+            "AT",
+            "CH",
+            "SE",
+            "NO",
+            "DK",
+            "FI",
+            "PL",
+            "CZ",
+            "HU",
+            "RO",
+            "BG",
+            "HR",
+            "SI",
+            "SK",
+            "LT",
+            "LV",
+            "EE",
+            "IE",
+            "PT",
+            "GR",
+            "CY",
+            "MT",
+            "LU",
+            "IS",
+            "LI",
+            "MC",
+            "SM",
+            "VA",
+            "AD",
+            "GB",
+            "UK",
         }
-        
+
         regions = set()
         if code in ("US", "CA"):
             regions.add("US_CA")
@@ -158,14 +192,14 @@ class V2rayConfigChecker:
             ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             print(f"[{ts}]   第{idx}行: ✗ 无法解析，已删除")
             return None
-        
+
         ok = self.test_config_connectivity(cfg)
         if not ok:
             self.invalid_configs.append(cfg)
             ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             print(f"[{ts}]   第{idx}行: ✗ 无效，已删除")
             return None
-        
+
         # 有效：分类归属地
         regions = self.classify_host_regions(cfg["host"])
         self.valid_configs.append(cfg)
@@ -217,11 +251,15 @@ class V2rayConfigChecker:
             encryption_mappings = {
                 valid_file_path: valid_file_path
                 + ".encrypted",  # All_Configs_Sub_valid.txt.encrypted
-                os.path.join(parent_dir, "US_CA.txt"): os.path.join(parent_dir, "US_CA"),  # US_CA.txt -> US_CA
+                os.path.join(parent_dir, "US_CA.txt"): os.path.join(
+                    parent_dir, "US_CA"
+                ),  # US_CA.txt -> US_CA
                 os.path.join(parent_dir, "EU_JP_KR.txt"): os.path.join(
                     parent_dir, "EU_JP_KR"
                 ),  # EU_JP_KR.txt -> EU_JP_KR
-                os.path.join(parent_dir, "Other.txt"): os.path.join(parent_dir, "Other"),  # Other.txt -> Other
+                os.path.join(parent_dir, "Other.txt"): os.path.join(
+                    parent_dir, "Other"
+                ),  # Other.txt -> Other
             }
 
             for source_file, encrypted_file in encryption_mappings.items():
@@ -273,7 +311,10 @@ class V2rayConfigChecker:
         print(f"并行处理开始，共 {len(work_items)} 个节点，max_workers={max_workers}")
         results = []
         with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
-            futures = [executor.submit(self._process_single_config, item) for item in work_items]
+            futures = [
+                executor.submit(self._process_single_config, item)
+                for item in work_items
+            ]
             for fut in concurrent.futures.as_completed(futures):
                 try:
                     res = fut.result()
@@ -300,14 +341,11 @@ class V2rayConfigChecker:
         # 最后对上述文件进行加密
         self._encrypt_files(valid_file_path, parent_dir)
 
+    # 第308-310行，修改检查文件路径
     def check_all_files(self):
-        """检查所有配置文件"""
-        base_dir = os.path.dirname(os.path.abspath(__file__))
-        parent_dir = os.path.dirname(base_dir)
-
-        # 只检查All_Configs_Sub.txt文件
+        parent_dir = os.path.dirname(os.path.dirname(__file__))
         files_to_check = [
-            os.path.join(parent_dir, "All_Configs_Sub.txt"),
+            os.path.join(parent_dir, "data", "All_Configs_Sub.txt"),
         ]
 
         for file_path in files_to_check:

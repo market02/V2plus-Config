@@ -189,7 +189,8 @@ def fetch_decode_and_filter(urls, protocols, max_configs):
 
 # Create necessary directories if they don't exist
 def ensure_directories_exist():
-    output_folder = os.path.join(os.path.dirname(__file__), "..")
+    # 原来：output_folder = os.path.join(os.path.dirname(__file__), "..")
+    output_folder = os.path.join(os.path.dirname(__file__), "..", "data")
 
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
@@ -209,7 +210,7 @@ def checkURL(url):
 def update_resources_status():
     print("开始检测Resources.md文件中的URL状态...")
     base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-    resources_path = os.path.join(base_dir, "Resources.md")
+    resources_path = os.path.join(base_dir, "docs", "Resources.md")
 
     if not os.path.exists(resources_path):
         print("警告：Resources.md 文件不存在，跳过状态更新")
@@ -311,7 +312,7 @@ def load_links_from_resources():
 
     # 基于文件位置定位 Resources.md，避免依赖当前工作目录
     base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-    resources_path = os.path.join(base_dir, "Resources.md")
+    resources_path = os.path.join(base_dir, "docs", "Resources.md")
 
     try:
         with open(resources_path, "r", encoding="utf-8") as f:

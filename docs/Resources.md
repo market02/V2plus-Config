@@ -6,7 +6,7 @@
 |:---------:|:--------------:|:-------------:|:-------------:|:----|
 | ✅ | 5 | 68 | 4h | https://raw.githubusercontent.com/ALIILAPRO/v2rayNG-Config/main/sub.txt |
 | ✅ | 5 | 53 | 1h | https://raw.githubusercontent.com/aiboboxx/v2rayfree/main/v2 |
-<!--| ✅ | 5 | 3 | 12h | https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/refs/heads/main/mtn/sub_1.txt |
+| ✅ | 5 | 3 | 12h | https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/refs/heads/main/mtn/sub_1.txt |
 | ✅ | 5 | 30 | 2h | https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/refs/heads/main/mtn/sub_2.txt |
 | ✅ | 5 | 0 | 2h | https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/refs/heads/main/mtn/sub_3.txt |
 | ✅ | 5 | 30 | idk | https://raw.githubusercontent.com/yebekhe/vpn-fail/refs/heads/main/sub-link |
@@ -45,4 +45,4 @@
 | ✅ | 5 | 838 | 838 | idk | https://raw.githubusercontent.com/mostafasadeghifar/v2ray-config/main/config_file.txt |
 | ✅ | 5 | 70 | 70 | idk | https://raw.githubusercontent.com/Ashkan-m/v2ray/main/Sub.txt |
 | ✅ | 5 | 333 | 333 | 1h | https://raw.githubusercontent.com/MrMohebi/xray-proxy-grabber-telegram/master/collected-proxies/row-url/all.txt |
-| ✅ | 5 | 280 | 479 | 3h | https://raw.githubusercontent.com/xiaoji235/airport-free/refs/heads/main/v2ray.txt |-->
+| ✅ | 5 | 280 | 479 | 3h | https://raw.githubusercontent.com/xiaoji235/airport-free/refs/heads/main/v2ray.txt |

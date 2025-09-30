@@ -93,20 +93,6 @@ def fetch_decode_and_filter(urls, protocols, max_configs):
     base64_sources = 0
     direct_sources = 0
 
-    def is_base64_encoded(data_part):
-        """判断协议头后面的内容是否为base64编码"""
-        try:
-            # 简单的base64检测：长度是4的倍数，且只包含base64字符
-            if len(data_part) % 4 != 0:
-                return False
-            # 检查是否包含base64字符集
-            import string
-
-            base64_chars = string.ascii_letters + string.digits + "+/="
-            return all(c in base64_chars for c in data_part)
-        except:
-            return False
-
     def extract_host_port_from_config(config_line):
         """从配置行提取Protocol+Host+Port，使用统一的解析器"""
         try:

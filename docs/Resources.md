@@ -10,8 +10,8 @@
 | ✅ | 5 | 30 | 2h | https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/refs/heads/main/mtn/sub_2.txt |
 | ✅ | 5 | 30 | 2h | https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/refs/heads/main/mtn/sub_3.txt |
 | ✅ | 5 | 30 | idk | https://raw.githubusercontent.com/yebekhe/vpn-fail/refs/heads/main/sub-link |
-| ✅ | 5 | 6978 | 2h | https://raw.githubusercontent.com/Surfboardv2ray/TGParse/main/splitted/mixed |
-| ✅ | 5 | 600 | 2h | https://raw.githubusercontent.com/itsyebekhe/PSG/main/lite/subscriptions/xray/normal/mix |
+| ✅ | 5 | 7065 | 2h | https://raw.githubusercontent.com/Surfboardv2ray/TGParse/main/splitted/mixed |
+| ✅ | 5 | 604 | 2h | https://raw.githubusercontent.com/itsyebekhe/PSG/main/lite/subscriptions/xray/normal/mix |
 | ✅ | 5 | 98 | 2h | https://raw.githubusercontent.com/HosseinKoofi/GO_V2rayCollector/main/mixed_iran.txt |
 | ✅ | 5 | 346 | 2h | https://raw.githubusercontent.com/arshiacomplus/v2rayExtractor/refs/heads/main/mix/sub.html |
 | ✅ | 5 | 205 | 8h | https://raw.githubusercontent.com/Rayan-Config/C-Sub/refs/heads/main/configs/proxy.txt |
@@ -20,7 +20,7 @@
 | ✅ | 5 | 110 | 235 | https://raw.githubusercontent.com/MahsaNetConfigTopic/config/refs/heads/main/xray_final.txt |
 | ✅ | 5 | 51 | 4h | https://raw.githubusercontent.com/wrfree/free/main/README.md |
 | ✅ | 5 | 43 | 1d | https://raw.githubusercontent.com/aiboboxx/v2rayfree/main/README.md |
-| ✅ | 5 | 7 | 1h | https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub |
+| ✅ | 5 | 6 | 1h | https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub |
 | ✅ | 5 | 4979 | 12h | https://raw.githubusercontent.com/mahdibland/V2RayAggregator/master/sub/sub_merge_base64.txt |
 | ✅ | 5 | 200 | 200 | https://raw.githubusercontent.com/mahdibland/V2RayAggregator/master/Eternity |
 | ✅ | 5 | 61 | 61 | https://raw.githubusercontent.com/mahdibland/V2RayAggregator/master/sub/airport_merge_base64.txt |
@@ -34,7 +34,7 @@
 | ✅ | 5 | 906 | 906 | https://raw.githubusercontent.com/AlienVPN402/AlienVPN402-subscribe-servers-sing-box/main/index.html |
 | ✅ | 5 | 136 | 136 | https://raw.githubusercontent.com/LonUp/NodeList/main/V2RAY/Latest_base64.txt |
 | ✅ | 5 | 548 | 548 | https://raw.githubusercontent.com/w1770946466/Auto_proxy/main/Long_term_subscription_num |
-| ✅ | 5 | 18 | 21 | https://raw.githubusercontent.com/a2470982985/getNode/main/v2ray.txt |
+| ✅ | 5 | 0 | 21 | https://raw.githubusercontent.com/a2470982985/getNode/main/v2ray.txt |
 | ✅ | 5 | 232 | 232 | https://raw.githubusercontent.com/ZywChannel/free/main/sub |
 | ✅ | 5 | 53 | 62 | https://raw.githubusercontent.com/peasoft/NoMoreWalls/master/list.txt |
 | ✅ | 5 | 37 | 50 | https://raw.githubusercontent.com/ts-sf/fly/main/v2 |

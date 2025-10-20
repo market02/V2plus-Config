@@ -110,6 +110,10 @@ jobs:
           # ---------- GitCode ----------
           git clone git@gitcode.com:amessboy/DeployData.git gitcode-deploy
           cd gitcode-deploy
+
+          # 先删除旧的分块加密文件（result0、result1、...）
+          rm -f result[0-9]* || true
+
           cp ../data/All_Configs_Sub_valid.txt.encrypted ./result
           cp ../data/All_Configs_Sub_valid.txt ./m_result
 
@@ -130,7 +134,7 @@ jobs:
           [[ -f ../data/US_CA ]] && cp ../data/US_CA ./US_CA || true
           [[ -f ../data/EU_JP_KR ]] && cp ../data/EU_JP_KR ./EU_JP_KR || true
           [[ -f ../data/Other ]] && cp ../data/Other ./Other || true
-          git add .
+          git add -A .
           git commit -m "Update encrypted configs from GitHub Actions" || echo "No changes to commit"
           git pull --strategy-option=theirs && git push
           cd ..
@@ -138,6 +142,10 @@ jobs:
           # ---------- Gitee ----------
           git clone git@gitee.com:amessboy/DeployData.git gitee-deploy
           cd gitee-deploy
+
+          # 先删除旧的分块加密文件（result0、result1、...）
+          rm -f result[0-9]* || true
+
           cp ../data/All_Configs_Sub_valid.txt.encrypted ./result
           cp ../data/All_Configs_Sub_valid.txt ./m_result
 
@@ -158,7 +166,7 @@ jobs:
           [[ -f ../data/US_CA ]] && cp ../data/US_CA ./US_CA || true
           [[ -f ../data/EU_JP_KR ]] && cp ../data/EU_JP_KR ./EU_JP_KR || true
           [[ -f ../data/Other ]] && cp ../data/Other ./Other || true
-          git add .
+          git add -A .
           git commit -m "Update encrypted configs from GitHub Actions" || echo "No changes to commit"
           git pull --strategy-option=theirs && git push
           cd ..

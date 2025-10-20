@@ -8,7 +8,12 @@ import binascii
 import os
 import json
 from connectivity_checker import V2rayConfigChecker
-from proxyUtil import *
+# 尝试导入 proxyUtil，若不可用则提供兼容的占位实现
+try:
+    from proxyUtil import *
+except Exception:
+    def ScrapURL(url):
+        return []
 from proxy_parsers import ProxyParser
 
 # Define a fixed timeout for HTTP requests
@@ -401,6 +406,15 @@ def main():
         for config in merged_configs:
             f.write(config + "\n")
     print(f"Main config file created: {output_filename}")
+
+    # 调用连通性检查器生成有效文件、区域分类，并进行分割与加密
+    try:
+        timeout_env = os.getenv("CONNECT_TIMEOUT", "").strip()
+        timeout = int(timeout_env) if timeout_env else 10
+    except ValueError:
+        timeout = 10
+    checker = V2rayConfigChecker(timeout=timeout)
+    checker.check_file(output_filename)
 
     print(f"\nProcess completed successfully!")
     print(f"Total configs processed: {len(merged_configs)}")

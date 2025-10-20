@@ -55,15 +55,15 @@ jobs:
           python encrypt_service.py --password "${{ secrets.AES_PASSWORD }}"
 
           # 区域文件：存在才加密
-          [[ -f US_CA.txt ]] && python encrypt_service.py \
+          [[ -f ./data/US_CA.txt ]] && python encrypt_service.py \
             --password "${{ secrets.AES_PASSWORD }}" \
             --input "./data/US_CA.txt" --output "../data/US_CA" || true
 
-          [[ -f EU_JP_KR.txt ]] && python encrypt_service.py \
+          [[ -f ./data/EU_JP_KR.txt ]] && python encrypt_service.py \
             --password "${{ secrets.AES_PASSWORD }}" \
             --input "./data/EU_JP_KR.txt" --output "../data/EU_JP_KR" || true
 
-          [[ -f Other.txt ]] && python encrypt_service.py \
+          [[ -f ./data/Other.txt ]] && python encrypt_service.py \
             --password "${{ secrets.AES_PASSWORD }}" \
             --input "./data/Other.txt" --output "../data/Other" || true
 
@@ -111,10 +111,25 @@ jobs:
           git clone git@gitcode.com:amessboy/DeployData.git gitcode-deploy
           cd gitcode-deploy
           cp ../data/All_Configs_Sub_valid.txt.encrypted ./result
-          cp ../data/All_Configs_Sub_valid.txt ./result2
-          [[ -d ../data/US_CA ]] && cp -r ../data/US_CA ./US_CA || true
-          [[ -d ../data/EU_JP_KR ]] && cp -r ../data/EU_JP_KR ./EU_JP_KR || true
-          [[ -d ../data/Other ]] && cp -r ../data/Other ./Other || true
+          cp ../data/All_Configs_Sub_valid.txt ./m_result
+
+          # 拷贝分割后的加密/明文文件
+          for f in ../data/result*; do
+            if [ -f "$f" ]; then
+              base=$(basename "$f")
+              cp "$f" "./$base"
+            fi
+          done
+          for f in ../data/All_Configs_Sub_valid_part*.txt; do
+            if [ -f "$f" ]; then
+              base=$(basename "$f")
+              cp "$f" "./$base"
+            fi
+          done
+
+          [[ -f ../data/US_CA ]] && cp ../data/US_CA ./US_CA || true
+          [[ -f ../data/EU_JP_KR ]] && cp ../data/EU_JP_KR ./EU_JP_KR || true
+          [[ -f ../data/Other ]] && cp ../data/Other ./Other || true
           git add .
           git commit -m "Update encrypted configs from GitHub Actions" || echo "No changes to commit"
           git pull --strategy-option=theirs && git push
@@ -124,10 +139,25 @@ jobs:
           git clone git@gitee.com:amessboy/DeployData.git gitee-deploy
           cd gitee-deploy
           cp ../data/All_Configs_Sub_valid.txt.encrypted ./result
-          cp ../data/All_Configs_Sub_valid.txt ./result2
-          [[ -d ../data/US_CA ]] && cp -r ../data/US_CA ./US_CA || true
-          [[ -d ../data/EU_JP_KR ]] && cp -r ../data/EU_JP_KR ./EU_JP_KR || true
-          [[ -d ../data/Other ]] && cp -r ../data/Other ./Other || true
+          cp ../data/All_Configs_Sub_valid.txt ./m_result
+
+          # 拷贝分割后的加密/明文文件
+          for f in ../data/result*; do
+            if [ -f "$f" ]; then
+              base=$(basename "$f")
+              cp "$f" "./$base"
+            fi
+          done
+          for f in ../data/All_Configs_Sub_valid_part*.txt; do
+            if [ -f "$f" ]; then
+              base=$(basename "$f")
+              cp "$f" "./$base"
+            fi
+          done
+
+          [[ -f ../data/US_CA ]] && cp ../data/US_CA ./US_CA || true
+          [[ -f ../data/EU_JP_KR ]] && cp ../data/EU_JP_KR ./EU_JP_KR || true
+          [[ -f ../data/Other ]] && cp ../data/Other ./Other || true
           git add .
           git commit -m "Update encrypted configs from GitHub Actions" || echo "No changes to commit"
           git pull --strategy-option=theirs && git push

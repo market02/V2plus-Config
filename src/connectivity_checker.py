@@ -241,7 +241,43 @@ class V2rayConfigChecker:
                 f.write(line + "\n")
         print(f"其他地区配置已保存到: {other_file}（{len(other)} 个）")
 
-    def _encrypt_files(self, valid_file_path, parent_dir):
+    def _split_valid_file_into_chunks(self, valid_file_path, parent_dir, chunk_size=2000):
+        """将有效文件按每 chunk_size 个节点分割为多个文件"""
+        try:
+            with open(valid_file_path, "r", encoding="utf-8") as f:
+                lines = [ln.rstrip("\n") for ln in f.readlines()]
+            # 头部注释行：保留到每个分割文件
+            header_lines = [ln for ln in lines if ln.startswith("#")]
+            # 节点行：非空、非注释
+            node_lines = [ln for ln in lines if ln and not ln.startswith("#")]
+
+            if not node_lines:
+                print("有效配置为空，跳过分割。")
+                return []
+
+            chunk_paths = []
+            for start in range(0, len(node_lines), chunk_size):
+                part_index = start // chunk_size
+                chunk_nodes = node_lines[start : start + chunk_size]
+                part_path = os.path.join(
+                    parent_dir, f"All_Configs_Sub_valid_part{part_index}.txt"
+                )
+                with open(part_path, "w", encoding="utf-8") as out:
+                    for ln in header_lines:
+                        out.write(ln + "\n")
+                    for ln in chunk_nodes:
+                        out.write(ln + "\n")
+                print(
+                    f"分割文件已生成: {part_path}（{len(chunk_nodes)} 个节点）"
+                )
+                chunk_paths.append(part_path)
+
+            return chunk_paths
+        except Exception as e:
+            print(f"分割有效文件失败：{e}")
+            return []
+
+    def _encrypt_files(self, valid_file_path, parent_dir, chunk_paths=None):
         """加密文件"""
         try:
             password = os.getenv("ENCRYPT_PASSWORD", "v2plus").strip() or "v2plus"
@@ -249,18 +285,24 @@ class V2rayConfigChecker:
 
             # 定义加密文件的自定义输出路径
             encryption_mappings = {
-                valid_file_path: valid_file_path
-                + ".encrypted",  # All_Configs_Sub_valid.txt.encrypted
+                valid_file_path: valid_file_path + ".encrypted",
                 os.path.join(parent_dir, "US_CA.txt"): os.path.join(
                     parent_dir, "US_CA"
-                ),  # US_CA.txt -> US_CA
+                ),
                 os.path.join(parent_dir, "EU_JP_KR.txt"): os.path.join(
                     parent_dir, "EU_JP_KR"
-                ),  # EU_JP_KR.txt -> EU_JP_KR
+                ),
                 os.path.join(parent_dir, "Other.txt"): os.path.join(
                     parent_dir, "Other"
-                ),  # Other.txt -> Other
+                ),
             }
+
+            # 对分割的有效文件进行加密：result0、result1、...
+            if chunk_paths:
+                for i, part_path in enumerate(chunk_paths):
+                    encryption_mappings[part_path] = os.path.join(
+                        parent_dir, f"result{i}"
+                    )
 
             for source_file, encrypted_file in encryption_mappings.items():
                 # 如果加密文件已存在，先删除（实现覆盖）
@@ -307,7 +349,7 @@ class V2rayConfigChecker:
             work_items.append((i, line))
 
         # 并行执行
-        max_workers = min(32, (os.cpu_count() or 4) * 5)  # I/O 密集型，开大点
+        max_workers = min(32, (os.cpu_count() or 4) * 5)
         print(f"并行处理开始，共 {len(work_items)} 个节点，max_workers={max_workers}")
         results = []
         with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
@@ -338,8 +380,13 @@ class V2rayConfigChecker:
         # 区域分类写出（统一写到项目根目录，即 file_path 所在目录）
         self._save_regional_files(results, parent_dir)
 
-        # 最后对上述文件进行加密
-        self._encrypt_files(valid_file_path, parent_dir)
+        # 分割有效文件为多个部分，每份 2000 个节点
+        chunk_paths = self._split_valid_file_into_chunks(
+            valid_file_path, parent_dir, chunk_size=2000
+        )
+
+        # 最后对上述文件进行加密（包括分割文件）
+        self._encrypt_files(valid_file_path, parent_dir, chunk_paths)
 
     # 第308-310行，修改检查文件路径
     def check_all_files(self):

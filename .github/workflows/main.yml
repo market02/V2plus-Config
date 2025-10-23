@@ -50,22 +50,28 @@ jobs:
       # 加密：主文件必做，区域文件存在才做
       - name: Encrypt valid configs with AES
         working-directory: src
+        env:
+          ENCRYPT_PASSWORD: ${{ secrets.AES_PASSWORD }}
         run: |
           # 主文件加密（始终存在）
           python encrypt_service.py --password "${{ secrets.AES_PASSWORD }}"
 
           # 区域文件：存在才加密
-          [[ -f ./data/US_CA.txt ]] && python encrypt_service.py \
+          [[ -f ../data/US_CA.txt ]] && python encrypt_service.py \
             --password "${{ secrets.AES_PASSWORD }}" \
-            --input "./data/US_CA.txt" --output "../data/US_CA" || true
+            --input "../data/US_CA.txt" --output "../data/US_CA" || true
 
-          [[ -f ./data/EU_JP_KR.txt ]] && python encrypt_service.py \
+          [[ -f ../data/EU_JP_KR.txt ]] && python encrypt_service.py \
             --password "${{ secrets.AES_PASSWORD }}" \
-            --input "./data/EU_JP_KR.txt" --output "../data/EU_JP_KR" || true
+            --input "../data/EU_JP_KR.txt" --output "../data/EU_JP_KR" || true
 
-          [[ -f ./data/Other.txt ]] && python encrypt_service.py \
+          [[ -f ../data/Other.txt ]] && python encrypt_service.py \
             --password "${{ secrets.AES_PASSWORD }}" \
-            --input "./data/Other.txt" --output "../data/Other" || true
+            --input "../data/Other.txt" --output "../data/Other" || true
+
+          # 验证result*文件是否生成
+          echo "检查生成的result文件："
+          ls -la ../data/result* || echo "未找到result文件"
 
       - name: Commit and push changes
         uses: EndBug/add-and-commit@v9
@@ -124,12 +130,6 @@ jobs:
               cp "$f" "./$base"
             fi
           done
-          for f in ../data/All_Configs_Sub_valid_part*.txt; do
-            if [ -f "$f" ]; then
-              base=$(basename "$f")
-              cp "$f" "./$base"
-            fi
-          done
 
           [[ -f ../data/US_CA ]] && cp ../data/US_CA ./US_CA || true
           [[ -f ../data/EU_JP_KR ]] && cp ../data/EU_JP_KR ./EU_JP_KR || true
@@ -151,12 +151,6 @@ jobs:
 
           # 拷贝分割后的加密/明文文件
           for f in ../data/result*; do
-            if [ -f "$f" ]; then
-              base=$(basename "$f")
-              cp "$f" "./$base"
-            fi
-          done
-          for f in ../data/All_Configs_Sub_valid_part*.txt; do
             if [ -f "$f" ]; then
               base=$(basename "$f")
               cp "$f" "./$base"

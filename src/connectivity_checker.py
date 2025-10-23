@@ -277,6 +277,92 @@ class V2rayConfigChecker:
             print(f"分割有效文件失败：{e}")
             return []
 
+    def _write_to_result_files_realtime(self, results, parent_dir, header_comment_lines, chunk_size=2000):
+        """实时将有效节点写入到加密的result文件中，避免生成明文分割文件"""
+        try:
+            password = os.getenv("ENCRYPT_PASSWORD", "v2plus").strip() or "v2plus"
+            enc = EncryptService(password)
+            
+            if not results:
+                print("没有有效节点，跳过result文件生成。")
+                return []
+            
+            # 计算需要的文件数量和最后一个文件的节点数
+            total_nodes = len(results)
+            full_files = total_nodes // chunk_size
+            remaining_nodes = total_nodes % chunk_size
+            
+            # 如果最后一个文件的节点数不足chunk_size的80%，则合并到前一个文件
+            merge_threshold = int(chunk_size * 0.8)
+            if remaining_nodes > 0 and remaining_nodes < merge_threshold and full_files > 0:
+                # 合并到前一个文件
+                full_files -= 1
+                remaining_nodes += chunk_size
+                print(f"最后一个文件节点数({total_nodes % chunk_size})不足80%阈值({merge_threshold})，合并到前一个文件")
+            
+            result_files = []
+            
+            # 处理完整的文件
+            for file_index in range(full_files):
+                start_idx = file_index * chunk_size
+                end_idx = start_idx + chunk_size
+                chunk_results = results[start_idx:end_idx]
+                
+                result_file_path = os.path.join(parent_dir, f"result{file_index}")
+                self._write_encrypted_result_file(enc, result_file_path, header_comment_lines, chunk_results)
+                result_files.append(result_file_path)
+                print(f"已生成加密文件: {result_file_path}（{len(chunk_results)} 个节点）")
+            
+            # 处理剩余节点（如果有）
+            if remaining_nodes > 0:
+                start_idx = full_files * chunk_size
+                chunk_results = results[start_idx:]
+                
+                result_file_path = os.path.join(parent_dir, f"result{full_files}")
+                self._write_encrypted_result_file(enc, result_file_path, header_comment_lines, chunk_results)
+                result_files.append(result_file_path)
+                print(f"已生成加密文件: {result_file_path}（{len(chunk_results)} 个节点）")
+            
+            return result_files
+            
+        except Exception as e:
+            print(f"实时写入result文件失败：{e}")
+            return []
+    
+    def _write_encrypted_result_file(self, enc, result_file_path, header_comment_lines, chunk_results):
+        """写入单个加密的result文件"""
+        try:
+            # 创建临时明文文件
+            temp_file_path = result_file_path + "_temp.txt"
+            
+            # 写入临时明文文件
+            with open(temp_file_path, "w", encoding="utf-8") as f:
+                # 写入头部注释
+                f.writelines(header_comment_lines)
+                # 写入节点配置
+                for result in chunk_results:
+                    f.write(result["line"] + "\n")
+            
+            # 加密临时文件到目标位置
+            if os.path.exists(result_file_path):
+                os.remove(result_file_path)
+            
+            enc.encrypt_file(temp_file_path, result_file_path)
+            
+            # 删除临时明文文件
+            if os.path.exists(temp_file_path):
+                os.remove(temp_file_path)
+                
+        except Exception as e:
+            print(f"写入加密result文件失败 {result_file_path}: {e}")
+            # 确保清理临时文件
+            temp_file_path = result_file_path + "_temp.txt"
+            if os.path.exists(temp_file_path):
+                try:
+                    os.remove(temp_file_path)
+                except:
+                    pass
+
     def _encrypt_files(self, valid_file_path, parent_dir, chunk_paths=None):
         """加密文件"""
         try:
@@ -380,13 +466,13 @@ class V2rayConfigChecker:
         # 区域分类写出（统一写到项目根目录，即 file_path 所在目录）
         self._save_regional_files(results, parent_dir)
 
-        # 分割有效文件为多个部分，每份 2000 个节点
-        chunk_paths = self._split_valid_file_into_chunks(
-            valid_file_path, parent_dir, chunk_size=2000
+        # 实时写入加密的result文件，避免生成明文分割文件
+        result_files = self._write_to_result_files_realtime(
+            results, parent_dir, header_comment_lines, chunk_size=2000
         )
 
-        # 最后对上述文件进行加密（包括分割文件）
-        self._encrypt_files(valid_file_path, parent_dir, chunk_paths)
+        # 对其他文件进行加密（不包括result文件，因为已经在上面处理了）
+        self._encrypt_files(valid_file_path, parent_dir, chunk_paths=None)
 
     # 第308-310行，修改检查文件路径
     def check_all_files(self):

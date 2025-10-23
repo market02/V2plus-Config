@@ -214,13 +214,14 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 
-/US_CA
-/US_CA.txt
-/All_Configs_Sub.txt
-/All_Configs_Sub_valid.txt
-/All_Configs_Sub_valid.txt.encrypted
-/EU_JP_KR
-/EU_JP_KR.txt
-/Other
-/Other.txt
-/result*
+data/US_CA
+data/US_CA.txt
+data/All_Configs_Sub.txt
+data/All_Configs_Sub_valid.txt
+data/All_Configs_Sub_valid.txt.encrypted
+data/EU_JP_KR
+data/EU_JP_KR.txt
+data/Other
+data/Other.txt
+data/result*
+data/All_Configs_Sub_valid_part*.txt

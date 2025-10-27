@@ -1,0 +1,28 @@
+[
+  {
+    "URL": "https://www.dayssr.com/",
+    "action1": {
+      "name": "Click", //Click 返回个URL, 点击后跳转
+      "xpath": "/html/body/section/div[2]/div[1]/article[1]/div[2]/div[2]/h3"
+    },
+    "action2": {
+      "name": "Search", //Search 返回最近标签内容
+      "rules": "V2Ray 协议订阅地址"
+    },
+    "action3": {
+      "name": "Extract", //Extract 按规则返回提取值
+      "rules": "http://*"
+    },
+    "action4": {
+      "name": "Open", //Open 打开URL
+      "precheck": "http://*" //precheck进行输入检查, 符合规则才执行
+    }
+  },
+  {
+    "URL": "https://github.com/free-nodes/v2rayfree",
+    "action1": {
+      "name": "Search",
+      "rules": "hysteria2:||trojan:||ss:||vmess:||vless:"
+    }
+  }
+]

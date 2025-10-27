@@ -4,3 +4,12 @@ cryptography
 pytest
 proxyUtil @ git+https://github.com/mheidari98/proxyUtil@e9944c0837a389a98dc89b7c54ab0ec05ce430ff
 datetime
+
+# 异步HTTP客户端和浏览器自动化
+aiohttp>=3.8.0
+playwright>=1.40.0
+
+# 高效链接提取库 (可选)
+beautifulsoup4>=4.12.0
+lxml>=4.9.0
+urlextract>=1.8.0

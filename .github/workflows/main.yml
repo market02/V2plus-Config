@@ -120,7 +120,6 @@ jobs:
           # 先删除旧的分块加密文件（result0、result1、...）
           rm -f result[0-9]* || true
 
-          cp ../data/All_Configs_Sub_valid.txt.encrypted ./result
           cp ../data/All_Configs_Sub_valid.txt ./m_result
 
           # 拷贝分割后的加密/明文文件
@@ -146,7 +145,6 @@ jobs:
           # 先删除旧的分块加密文件（result0、result1、...）
           rm -f result[0-9]* || true
 
-          cp ../data/All_Configs_Sub_valid.txt.encrypted ./result
           cp ../data/All_Configs_Sub_valid.txt ./m_result
 
           # 拷贝分割后的加密/明文文件

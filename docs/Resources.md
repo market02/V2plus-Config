@@ -4,14 +4,14 @@
 
 | available | responsibility | proxy count | updated every | url |
 |:---------:|:--------------:|:-------------:|:-------------:|:----|
-| ✅ | 5 | 79 | 4h | https://raw.githubusercontent.com/ALIILAPRO/v2rayNG-Config/main/sub.txt |
+| ✅ | 5 | 81 | 4h | https://raw.githubusercontent.com/ALIILAPRO/v2rayNG-Config/main/sub.txt |
 | ✅ | 5 | 52 | 1h | https://raw.githubusercontent.com/aiboboxx/v2rayfree/main/v2 |
 | ✅ | 5 | 7 | 12h | https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/refs/heads/main/mtn/sub_1.txt |
 | ✅ | 5 | 30 | 2h | https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/refs/heads/main/mtn/sub_2.txt |
 | ✅ | 5 | 30 | 2h | https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/refs/heads/main/mtn/sub_3.txt |
 | ✅ | 5 | 30 | idk | https://raw.githubusercontent.com/yebekhe/vpn-fail/refs/heads/main/sub-link |
 | ✅ | 5 | 9081 | 2h | https://raw.githubusercontent.com/Surfboardv2ray/TGParse/main/splitted/mixed |
-| ✅ | 5 | 590 | 2h | https://raw.githubusercontent.com/itsyebekhe/PSG/main/lite/subscriptions/xray/normal/mix |
+| ✅ | 5 | 588 | 2h | https://raw.githubusercontent.com/itsyebekhe/PSG/main/lite/subscriptions/xray/normal/mix |
 | ✅ | 5 | 98 | 2h | https://raw.githubusercontent.com/HosseinKoofi/GO_V2rayCollector/main/mixed_iran.txt |
 | ✅ | 5 | 678 | 2h | https://raw.githubusercontent.com/arshiacomplus/v2rayExtractor/refs/heads/main/mix/sub.html |
 | ✅ | 5 | 187 | 8h | https://raw.githubusercontent.com/Rayan-Config/C-Sub/refs/heads/main/configs/proxy.txt |
@@ -20,7 +20,7 @@
 | ✅ | 5 | 213 | 235 | https://raw.githubusercontent.com/MahsaNetConfigTopic/config/refs/heads/main/xray_final.txt |
 | ✅ | 5 | 51 | 4h | https://raw.githubusercontent.com/wrfree/free/main/README.md |
 | ✅ | 5 | 52 | 1d | https://raw.githubusercontent.com/aiboboxx/v2rayfree/main/README.md |
-| ✅ | 5 | 4 | 1h | https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub |
+| ✅ | 5 | 3 | 1h | https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub |
 | ✅ | 5 | 5107 | 12h | https://raw.githubusercontent.com/mahdibland/V2RayAggregator/master/sub/sub_merge_base64.txt |
 | ✅ | 5 | 200 | 200 | https://raw.githubusercontent.com/mahdibland/V2RayAggregator/master/Eternity |
 | ✅ | 5 | 61 | 61 | https://raw.githubusercontent.com/mahdibland/V2RayAggregator/master/sub/airport_merge_base64.txt |
@@ -45,5 +45,5 @@
 | ✅ | 5 | 838 | 838 | https://raw.githubusercontent.com/mostafasadeghifar/v2ray-config/main/config_file.txt |
 | ✅ | 5 | 70 | 70 | https://raw.githubusercontent.com/Ashkan-m/v2ray/main/Sub.txt |
 | ✅ | 5 | 333 | 333 | https://raw.githubusercontent.com/MrMohebi/xray-proxy-grabber-telegram/master/collected-proxies/row-url/all.txt |
-| ✅ | 5 | 441 | 479 | https://raw.githubusercontent.com/xiaoji235/airport-free/refs/heads/main/v2ray.txt |
-| ✅ | 5 | 441 | 479 | https://raw.githubusercontent.com/market02/V2plus-Config/refs/heads/main/sub_out.txt |
+| ✅ | 5 | 550 | 479 | https://raw.githubusercontent.com/xiaoji235/airport-free/refs/heads/main/v2ray.txt |
+| ✅ | 5 | 57 | 479 | https://raw.githubusercontent.com/market02/V2plus-Config/refs/heads/main/sub_out.txt |

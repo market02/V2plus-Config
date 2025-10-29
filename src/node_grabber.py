@@ -1,402 +1,479 @@
 import asyncio
+from typing import Any
 import httpx
+import json
+import base64
 from bs4 import BeautifulSoup
 from playwright.async_api import async_playwright
 import re
 from urllib.parse import urljoin, urlparse
+from datetime import datetime
+from pathlib import Path
 
 
-# 网站配置
-WEBSITES = {
-    "openclash": {
-        "name": "OpenClash",
-        "url": "https://openclash.cc/",
-        "article_selectors": [
-            "a[href*='free-node-subscribe-links']",  # 最新文章链接
-            ".item-heading a",  # 文章标题链接
-            "h3 a",  # 标题链接
-        ],
-        "subscription_patterns": [
-            r"https://node\.openclash\.cc/uploads/\d+/\d+/\d+-\d+\.txt",  # v2ray订阅链接
-        ],
-        "subscription_selectors": [
-            "a[href*='node.openclash.cc']",
-        ],
-    },
-    "mlfenx": {
-        "name": "米洛分享",
-        "url": "https://www.mlfenx.com/freenode",
-        "article_selectors": [
-            ".post-title a",
-            ".entry-title a",
-            "h2 a",
-        ],
-        "subscription_patterns": [
-            r"https://[^/]+/[^/]+\.txt",
-        ],
-        "subscription_selectors": [
-            "a[href$='.txt']",
-        ],
-    },
-    "ssrshare": {
-        "name": "SSR分享网",
-        "url": "https://ssrshare.net/",
-        "article_selectors": [
-            ".blog-sidebar-widget-post-title a",
-            ".widget-content article a",
-            ".post-title a",
-        ],
-        "subscription_patterns": [
-            r"http://ssrshare\.cczzuu\.top/node/\d+-[a-z]+\.txt",  # 匹配 http://ssrshare.cczzuu.top/node/20251026-ssr.txt 格式
-            r"https://ssrshare\.cczzuu\.top/node/\d+-[a-z]+\.txt",  # 同时支持 https
-        ],
-        "subscription_selectors": [
-            "a[href*='ssrshare.cczzuu.top/node/']",  # 只匹配包含 ssrshare.cczzuu.top/node/ 的链接
-            "a[href$='.txt'][href*='cczzuu.top']",  # .txt 结尾且包含 cczzuu.top 的链接
-        ],
-    },
-    "dayssr": {
-        "name": "节点分享网",
-        "url": "https://www.dayssr.com/",
-        "article_selectors": [
-            ".post-title a",
-            ".entry-title a",
-            "h2 a",
-        ],
-        "subscription_patterns": [
-            r"https://[^/]+/[^/]+\.txt",
-        ],
-        "subscription_selectors": [
-            "a[href$='.txt']",
-        ],
-    },
-    "surgenode": {
-        "name": "Surge节点订阅",
-        "url": "https://surgenode.github.io/",
-        "article_selectors": [
-            ".xclog-blog-title a",  # 根据图片中的HTML结构
-            ".row .item a",
-            "h3 a",
-            "h2 a",
-        ],
-        "subscription_patterns": [
-            r"https://node\.freeclashnode\.com/uploads/\d+/\d+/\d+-\d+\.txt",  # 根据图片中的链接格式
-        ],
-        "subscription_selectors": [
-            "a[href*='freeclashnode.com']",
-            "a[href*='node.freeclashnode.com']",
-        ],
-    },
-    "v2rayfree": {
-        "name": "V2ray免费节点",
-        "url": "https://github.com/free-nodes/v2rayfree",
-        "direct_scrape": True,
-        "subscription_patterns": [
-            r"https://raw\.githubusercontent\.com/free-nodes/v2rayfree/main/v2$",  # 精确匹配，避免重复
-        ],
-        "subscription_selectors": [
-            "a[href='https://raw.githubusercontent.com/free-nodes/v2rayfree/main/v2']",  # 精确匹配
-        ],
-    },
-    "freenode": {
-        "name": "Free Node订阅",
-        "url": "https://github.com/Flikify/Free-Node",
-        "direct_scrape": True,  # 直接爬取纯文本
-        "subscription_patterns": [
-            # 匹配 v2ray.txt 链接（支持带冒号或换行）
-            r"https://raw\.githubusercontent\.com/a2470982985/getNode/main/v2ray\.txt",
-            r"https://ghproxy\.com/https://raw\.githubusercontent\.com/a2470982985/getNode/main/v2ray\.txt",
-            r"https://cdn\.jsdelivr\.net/gh/a2470982985/getNode@main/v2ray\.txt",
-        ],
-        "subscription_selectors": [],
-    },
-}
-
-
-async def get_latest_article_url(page, site_config, base_url):
-    """获取网站最新文章的URL"""
-    print(f"正在查找 {site_config['name']} 的最新文章...")
-
-    # 尝试不同的选择器来找到最新文章
-    for selector in site_config["article_selectors"]:
-        try:
-            articles = await page.query_selector_all(selector)
-            if articles:
-                # 获取第一篇文章的链接
-                article_url = await articles[0].get_attribute("href")
-                if article_url:
-                    # 处理相对链接
-                    if not article_url.startswith("http"):
-                        article_url = urljoin(base_url, article_url)
-                    print(f"找到最新文章: {article_url}")
-                    return article_url
-        except Exception as e:
-            print(f"选择器 {selector} 失败: {e}")
-            continue
-
-    # 如果没有找到文章链接，使用BeautifulSoup解析
+def load_config():
+    """加载JSON配置文件"""
     try:
-        html_content = await page.content()
-        soup = BeautifulSoup(html_content, "html.parser")
+        with open("sub_in.json", "r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception as e:
+        print(f"加载配置文件失败: {e}")
+        return []
 
-        for selector in site_config["article_selectors"]:
-            # 转换CSS选择器为BeautifulSoup格式
-            if selector.startswith("."):
-                elements = soup.select(selector)
+
+def is_base64(content):
+    """判断内容是否为base64编码"""
+    try:
+        # 移除空白字符
+        content = content.strip()
+        if not content:
+            return False
+
+        # 检查是否包含协议头，如果有则不是base64
+        if any(
+            protocol in content
+            for protocol in [
+                "vmess://",
+                "vless://",
+                "trojan://",
+                "ss://",
+                "ssr://",
+                "hysteria2://",
+            ]
+        ):
+            return False
+
+        # 尝试base64解码
+        decoded = base64.b64decode(content)
+        # 检查解码后的内容是否包含协议头
+        decoded_str = decoded.decode("utf-8", errors="ignore")
+        if any(
+            protocol in decoded_str
+            for protocol in [
+                "vmess://",
+                "vless://",
+                "trojan://",
+                "ss://",
+                "ssr://",
+                "hysteria2://",
+            ]
+        ):
+            return True
+
+        return False
+    except Exception:
+        return False
+
+
+def decode_base64_content(content):
+    """解码base64内容"""
+    try:
+        decoded = base64.b64decode(content.strip())
+        return decoded.decode("utf-8", errors="ignore")
+    except Exception as e:
+        print(f"Base64解码失败: {e}")
+        return content
+
+
+def validate_node_content(content):
+    """验证节点内容是否符合协议格式"""
+    if not content:
+        return False
+
+    # 检查是否包含支持的协议头
+    protocols = ["vmess://", "vless://", "trojan://", "ss://", "ssr://", "hysteria2://"]
+    return any(protocol in content for protocol in protocols)
+
+
+async def fetch_subscription_content(url):
+    """获取订阅链接的内容"""
+    try:
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            response = await client.get(url)
+            response.raise_for_status()
+            content = response.text
+
+            print(f"成功获取订阅内容，长度: {len(content)} 字符")
+
+            # 判断是否为base64编码
+            if is_base64(content):
+                print("检测到Base64编码，正在解码...")
+                content = decode_base64_content(content)
+                print(f"解码后内容长度: {len(content)} 字符")
+
+            # 验证内容是否包含有效节点
+            if validate_node_content(content):
+                return content
             else:
-                elements = soup.select(selector)
+                print("内容不包含有效的节点信息")
+                return None
 
-            if elements:
-                href = elements[0].get("href")
-                if href:
-                    if not href.startswith("http"):
-                        href = urljoin(base_url, href)
-                    print(f"通过BeautifulSoup找到文章: {href}")
-                    return href
     except Exception as e:
-        print(f"BeautifulSoup解析失败: {e}")
-
-    print(f"未找到 {site_config['name']} 的最新文章，将在首页查找订阅链接")
-    return base_url
+        print(f"获取订阅内容失败: {e}")
+        return None
 
 
-async def extract_subscription_links(page, site_config, article_url):
-    """从文章页面提取订阅链接"""
-    print(f"正在从 {article_url} 提取订阅链接...")
-
-    subscription_links = {}
-    seen_urls = set()  # 用于去重
+def save_nodes_to_file(content, website_name):
+    """将节点内容追加到输出文件"""
+    base_dir = Path(__file__).resolve().parent.parent
+    out_file = base_dir / "sub_out.txt"
 
     try:
-        # 获取页面内容
-        html_content = await page.content()
-        soup = BeautifulSoup(html_content, "html.parser")
+        # 标准化：按行拆分、去空格、移除所有空行
+        lines = [ln.strip() for ln in content.splitlines() if ln.strip()]
+        if not lines:
+            print("无可保存的节点内容")
+            return
 
-        # 方法1: 通过选择器查找链接
-        for selector in site_config.get("subscription_selectors", []):
-            try:
-                links = soup.select(selector)
-                for link in links:
-                    href = link.get("href")
-                    if href and href not in seen_urls:
-                        seen_urls.add(href)
-                        link_text = (
-                            link.get_text().strip()
-                            or f"订阅链接_{len(subscription_links)+1}"
-                        )
-                        subscription_links[link_text] = href
-            except Exception as e:
-                print(f"选择器 {selector} 提取失败: {e}")
+        with open(out_file, "a", encoding="utf-8") as f:
+            f.write(
+                f"# {website_name} - {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
+            )
+            for ln in lines:
+                f.write(ln + "\n")
+        print(f"已将 {website_name} 的节点保存到 {out_file}")
+    except Exception as e:
+        print(f"保存节点到文件失败: {e}")
 
-        # 方法2: 通过正则表达式查找链接
-        for pattern in site_config.get("subscription_patterns", []):
-            try:
-                matches = re.findall(pattern, html_content)
-                for match in matches:
-                    if match and match not in seen_urls:
-                        seen_urls.add(match)
-                        link_name = f"订阅链接_{len(subscription_links)+1}"
-                        subscription_links[link_name] = match
-            except Exception as e:
-                print(f"正则表达式 {pattern} 提取失败: {e}")
 
-        # 方法3: 查找所有包含常见订阅链接特征的链接
-        for a_tag in soup.find_all("a", href=True):
-            href = a_tag.get("href")
-            if any(
-                keyword in href.lower()
-                for keyword in [".txt", "subscribe", "sub", "node"]
-            ):
-                if any(
-                    domain in href
-                    for domain in [
-                        "github.io",
-                        "githubusercontent",
-                        "openclash.cc",
-                        "cczzuu.top",
-                    ]
-                ):
-                    # 只匹配.txt文件，排除其他格式
-                    if href.endswith(".txt") and href not in seen_urls:
-                        seen_urls.add(href)
-                        link_text = (
-                            a_tag.get_text().strip()
-                            or f"订阅链接_{len(subscription_links)+1}"
-                        )
-                        subscription_links[link_text] = href
-
-        # 方法4: 从文本中提取链接（针对某些网站直接在文本中显示链接）
-        text_content = soup.get_text()
-        # 使用更精确的正则表达式，避免链接粘连
-        url_pattern = r'https?://[a-zA-Z0-9.-]+/[a-zA-Z0-9./_-]*\.txt(?=\s|$|https?://|[<>"\'()]|[^\w.-])'
-        text_urls = re.findall(url_pattern, text_content)
-        for url in text_urls:
-            # 简单验证：只保留.txt文件且来自可信域名
-            if (
-                url.endswith(".txt")
-                and any(
-                    domain in url
-                    for domain in [
-                        "openclash.cc",
-                        "freeclashnode.com",
-                        "cczzuu.top",
-                        "github.io",
-                        "githubusercontent.com",
-                        "ghproxy.com",
-                        "jsdelivr.net",
-                    ]
-                )
-                and url not in seen_urls
-            ):
-                seen_urls.add(url)
-                subscription_links[f"文本链接_{len(subscription_links)+1}"] = url
-
-        # 方法5: 从HTML源码中分割提取链接（处理粘连问题）
-        html_text = str(soup)
-        # 先找到所有可能的链接模式，然后分割
-        potential_links = re.findall(
-            r"https://[a-zA-Z0-9.-]+/[a-zA-Z0-9./_-]*\.txt", html_text
+async def click_element_by_selector(page, selector):
+    """通过选择器点击元素，支持XPath和CSS选择器"""
+    try:
+        # 判断是否为XPath（以//或/开头，或包含XPath特有语法）
+        is_xpath = (
+            selector.startswith(("/", "//"))
+            or "contains(" in selector
+            or "text()" in selector
+            or "@" in selector
         )
-        for url in potential_links:
-            # 简单验证：只保留.txt文件且来自可信域名，避免重复
-            if (
-                url.endswith(".txt")
-                and any(
-                    domain in url
-                    for domain in [
-                        "openclash.cc",
-                        "freeclashnode.com",
-                        "cczzuu.top",
-                        "github.io",
-                        "githubusercontent.com",
-                        "ghproxy.com",
-                        "jsdelivr.net",
-                    ]
-                )
-                and url not in seen_urls
-            ):
-                seen_urls.add(url)
-                subscription_links[f"HTML链接_{len(subscription_links)+1}"] = url
+
+        if is_xpath:
+            # XPath选择器
+            await page.wait_for_selector(f"xpath={selector}", timeout=10000)
+            element = await page.query_selector(f"xpath={selector}")
+        else:
+            # CSS选择器
+            await page.wait_for_selector(selector, timeout=10000)
+            element = await page.query_selector(selector)
+
+        if element:
+            await element.click(force=True)
+            return True
+    except Exception as e:
+        selector_type = "XPath" if is_xpath else "CSS"
+        print(f"点击元素失败 ({selector_type}: {selector}): {e}")
+    return False
+
+
+async def search_content_by_rules(page, rules):
+    """根据规则搜索页面内容"""
+    try:
+        content = await page.content()
+        soup = BeautifulSoup(content, "html.parser")
+        text_content = soup.get_text()
+
+        # 分割规则（使用||分隔）
+        search_terms = rules.split("||")
+
+        for term in search_terms:
+            if term.strip() in text_content:
+                print(f"找到匹配内容: {term.strip()}")
+                return True
+
+        return False
+    except Exception as e:
+        print(f"搜索内容失败: {e}")
+        return False
+
+
+async def extract_urls_by_rules(page, rules, html_source=None):
+    """根据规则提取URL"""
+    try:
+        content = await page.content()
+        soup = BeautifulSoup(content, "html.parser")
+
+        extracted_urls = []
+
+        # 分割规则（使用||分隔）
+        url_patterns = rules.split("||")
+
+        for pattern in url_patterns:
+            pattern = pattern.strip()
+
+            # 将通配符模式转换为正则表达式
+            if "*" in pattern:
+                regex_pattern = pattern.replace("*", r"[^/\s]+")
+                regex_pattern = regex_pattern.replace("http*://", r"https?://")
+
+                print(f"使用正则模式匹配: {regex_pattern}")
+
+                try:
+                    text_content = str(soup)
+                    matches = re.findall(regex_pattern, text_content)
+                    extracted_urls.extend(matches)
+
+                    for a_tag in soup.find_all("a", href=True):
+                        href = a_tag.get("href")
+                        if re.search(regex_pattern, href):
+                            if href.startswith("/"):
+                                current_url = page.url
+                                href = urljoin(current_url, href)
+                            extracted_urls.append(href)
+
+                    all_text = soup.get_text()
+                    url_matches = re.findall(regex_pattern, all_text)
+                    extracted_urls.extend(url_matches)
+
+                except Exception as regex_error:
+                    print(f"正则表达式处理失败 ({regex_pattern}): {regex_error}")
+
+            elif pattern.startswith("http"):
+                extracted_urls.append(pattern)
+            else:
+                try:
+                    text_content = str(soup)
+                    matches = re.findall(pattern, text_content)
+                    extracted_urls.extend(matches)
+
+                    for a_tag in soup.find_all("a", href=True):
+                        href = a_tag.get("href")
+                        if re.search(pattern, href):
+                            extracted_urls.append(href)
+
+                except Exception as regex_error:
+                    print(f"正则表达式处理失败 ({pattern}): {regex_error}")
+
+        unique_urls = list(set(extracted_urls))
+        valid_urls = []
+
+        for url in unique_urls:
+            if url and (url.startswith("http://") or url.startswith("https://")):
+                valid_urls.append(url)
+
+        return valid_urls
 
     except Exception as e:
-        print(f"提取订阅链接时出错: {e}")
+        print(f"提取URL失败: {e}")
+        return []
 
-    return subscription_links
 
+async def process_website_config(config):
+    # 处理单个网站配置
+    url = config.get("URL", "")
+    website_name = urlparse(url).netloc
 
-async def scrape_website(site_key, site_config):
-    """爬取单个网站的订阅链接"""
     print(f"\n{'='*50}")
-    print(f"开始爬取 {site_config['name']} ({site_config['url']})")
+    print(f"开始处理网站: {website_name}")
+    print(f"URL: {url}")
     print(f"{'='*50}")
-
-    subscription_links = {}
 
     async with async_playwright() as p:
         try:
-            # 启动浏览器
-            browser = await p.chromium.launch(headless=True)
+            browser = await p.chromium.launch(headless=False)
             context = await browser.new_context(
                 user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
             )
             page = await context.new_page()
 
-            # 访问网站首页
-            await page.goto(site_config["url"], timeout=30000)
-            print(f"已访问 {site_config['name']} 首页")
+            await page.goto(url, timeout=60000)
+            await wait_for_page_ready(page)
+            print(f"成功访问: {url}")
+            subscription_urls = []
+            steps = config.get("steps", [])
+            for i, step in enumerate(steps, 1):
+                step_type = step.get("type", "")
+                step_id = step.get("id", f"{i:02d}")
+                print(f"\n执行步骤 {step_id}: {step_type}")
 
-            # 等待页面加载
-            await page.wait_for_load_state("networkidle", timeout=30000)
+                # 移除了dismiss步骤的处理逻辑
 
-            # 检查是否为直接爬取模式
-            if site_config.get("direct_scrape", False):
-                # 直接从主页提取订阅链接
-                subscription_links = await extract_subscription_links(
-                    page, site_config, site_config["url"]
-                )
-            else:
-                # 获取最新文章URL
-                latest_article_url = await get_latest_article_url(
-                    page, site_config, site_config["url"]
-                )
+                if step_type == "click":
+                    # 支持多种选择器格式
+                    selectors = []
 
-                # 如果找到了不同的文章URL，访问该页面
-                if latest_article_url != site_config["url"]:
-                    await page.goto(latest_article_url, timeout=30000)
-                    await page.wait_for_load_state("networkidle", timeout=30000)
-                    print(f"已访问最新文章页面")
+                    # 获取选择器列表
+                    if "selectors" in step:
+                        selectors = step["selectors"]
+                    elif "xpath" in step:
+                        xpath_list = step["xpath"]
+                        if isinstance(xpath_list, str):
+                            selectors = [xpath_list]
+                        else:
+                            selectors = xpath_list
+                    elif "css" in step:
+                        css_list = step["css"]
+                        if isinstance(css_list, str):
+                            selectors = [css_list]
+                        else:
+                            selectors = css_list
 
-                # 提取订阅链接
-                subscription_links = await extract_subscription_links(
-                    page, site_config, latest_article_url
-                )
+                    # 尝试每个选择器直到成功
+                    success = False
+                    for selector in selectors:
+                        if selector:
+                            success = await click_element_by_selector(page, selector)
+                            if success:
+                                await wait_for_page_ready(page)
+                                print(f"点击成功，使用选择器: {selector}")
+                                break
+                            else:
+                                print(f"选择器失败: {selector}")
 
-            # 关闭浏览器
+                    if not success:
+                        print("所有选择器都失败了")
+
+                elif step_type == "search":
+                    rules = step.get("rules", "")
+                    if rules:
+                        found = await search_content_by_rules(page, rules)
+                        if found:
+                            print("搜索成功（整页搜索）")
+                        else:
+                            print("未找到匹配内容（整页搜索）")
+
+                elif step_type == "extract":
+                    rules = step.get("rules", "")
+                    if rules:
+                        urls = await extract_urls_by_rules(
+                            page, rules, html_source=None
+                        )
+                        subscription_urls.extend(urls)
+                        print(f"提取到 {len(urls)} 个URL")
+                        for u in urls:
+                            print(f"  - {u}")
+
+                elif step_type == "save":
+                    target = step.get("target", step.get("rules", ""))
+                    protocols = [
+                        t.strip().replace("://", "")
+                        for t in target.split("||")
+                        if t.strip()
+                    ]
+
+                    if subscription_urls:
+                        for sub_url in subscription_urls:
+                            print(f"\n正在处理订阅链接: {sub_url}")
+                            content = await fetch_subscription_content(sub_url)
+                            if content:
+                                nodes = extract_nodes_from_text(content, protocols)
+                                if nodes:
+                                    save_nodes_to_file("\n".join(nodes), website_name)
+                                else:
+                                    print("内容未提取到目标协议节点")
+                            else:
+                                print("获取订阅内容失败")
+                    else:
+                        page_html = await page.content()
+                        soup = BeautifulSoup(page_html, "html.parser")
+                        text = soup.get_text("\n")
+                        nodes = extract_nodes_from_text(text, protocols)
+                        if nodes:
+                            save_nodes_to_file("\n".join(nodes), website_name)
+                        else:
+                            print("页面未提取到目标协议节点")
+
+                elif step_type == "save":
+                    # 按协议过滤并保存（打开订阅链接并自动解密）
+                    target = step.get("target", step.get("rules", ""))
+                    protocols = [
+                        t.strip().replace("://", "")
+                        for t in target.split("||")
+                        if t.strip()
+                    ]
+                    if subscription_urls:
+                        for sub_url in subscription_urls:
+                            print(f"\n正在处理订阅链接: {sub_url}")
+                            content = await fetch_subscription_content(sub_url)
+                            if content:
+                                nodes = extract_nodes_from_text(content, protocols)
+                                if nodes:
+                                    save_nodes_to_file("\n".join(nodes), website_name)
+                                else:
+                                    print("内容未提取到目标协议节点")
+                            else:
+                                print("获取订阅内容失败")
+                    else:
+                        # 无订阅链接时，直接从页面文本过滤并保存
+                        page_html = await page.content()
+                        soup = BeautifulSoup(page_html, "html.parser")
+                        text = soup.get_text("\n")
+                        nodes = extract_nodes_from_text(text, protocols)
+                        if nodes:
+                            save_nodes_to_file("\n".join(nodes), website_name)
+                        else:
+                            print("页面未提取到目标协议节点")
+
             await browser.close()
 
         except Exception as e:
-            print(f"爬取 {site_config['name']} 时出错: {e}")
+            print(f"处理网站 {website_name} 时出错: {e}")
             try:
                 await browser.close()
             except:
                 pass
 
-    return site_key, subscription_links
-
-
-async def get_all_subscription_links():
-    """获取所有网站的订阅链接"""
-    print("开始爬取多个网站的订阅链接...")
-
-    all_links = {}
-
-    # 并发爬取所有网站
-    tasks = []
-    for site_key, site_config in WEBSITES.items():
-        task = scrape_website(site_key, site_config)
-        tasks.append(task)
-
-    # 等待所有任务完成
-    results = await asyncio.gather(*tasks, return_exceptions=True)
-
-    # 处理结果
-    for result in results:
-        if isinstance(result, Exception):
-            print(f"任务执行出错: {result}")
-        else:
-            site_key, links = result
-            if links:
-                all_links[site_key] = links
-                print(f"\n{WEBSITES[site_key]['name']} 找到 {len(links)} 个订阅链接:")
-                for name, url in links.items():
-                    print(f"  {name}: {url}")
-            else:
-                print(f"\n{WEBSITES[site_key]['name']} 未找到订阅链接")
-
-    # 保存所有订阅链接到文件
-    if all_links:
-        with open("subscription_links.txt", "w", encoding="utf-8") as f:
-            f.write("# 订阅链接汇总\n")
-            f.write(f"# 更新时间: {asyncio.get_event_loop().time()}\n\n")
-
-            for site_key, links in all_links.items():
-                f.write(f"## {WEBSITES[site_key]['name']}\n")
-                for name, url in links.items():
-                    f.write(f"{name}: {url}\n")
-                f.write("\n")
-
-        print(f"\n所有订阅链接已保存到 subscription_links.txt")
-        print(f"总共从 {len(all_links)} 个网站获取了订阅链接")
-    else:
-        print("\n未找到任何订阅链接")
-
-    return all_links
-
 
 async def main():
     """主函数"""
-    await get_all_subscription_links()
+    print("开始基于JSON配置爬取订阅链接...")
+
+    # 清空输出文件
+    try:
+        with open("sub_out.txt", "w", encoding="utf-8") as f:
+            f.write(f"# 订阅节点汇总\n")
+            f.write(f"# 更新时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+    except Exception as e:
+        print(f"初始化输出文件失败: {e}")
+
+    # 加载配置
+    configs = load_config()
+    if not configs:
+        print("未找到有效配置，程序退出")
+        return
+
+    print(f"加载了 {len(configs)} 个网站配置")
+
+    # 处理每个网站配置
+    for i, config in enumerate(configs, 1):
+        print(f"\n处理第 {i}/{len(configs)} 个网站配置")
+        try:
+            await process_website_config(config)
+        except Exception as e:
+            print(f"处理配置时出错: {e}")
+
+    print(f"\n{'='*50}")
+    print("所有网站处理完成！")
+    print("节点已保存到 sub_out.txt 文件")
+    print(f"{'='*50}")
 
 
+# 新增：统一的节点提取工具函数（顶层可复用）
+def extract_nodes_from_text(text, protocols):
+    protocols = [p.strip() for p in protocols if p.strip()]
+    if not protocols:
+        protocols = ["vmess", "vless", "trojan", "ss", "ssr", "hysteria2"]
+    # 兼容 hy2 写法（部分站写成 hy2://）
+    if "hysteria2" in protocols and "hy2" not in protocols:
+        protocols.append("hy2")
+
+    pattern = r"(?:%s)://[^\s]+" % "|".join(protocols)
+    matches = re.findall(pattern, text)
+    # 去重并保持插入顺序
+    return list(dict.fromkeys(matches))
+
+
+# 顶部新增：更稳健的页面加载等待
+async def wait_for_page_ready(page):
+    try:
+        await page.wait_for_load_state("networkidle", timeout=45000)
+    except Exception:
+        try:
+            await page.wait_for_load_state("load", timeout=15000)
+        except Exception:
+            await page.wait_for_load_state("domcontentloaded", timeout=10000)
+    await page.wait_for_timeout(300)
+
+
+# 顶部新增：关闭广告/弹窗
 if __name__ == "__main__":
     asyncio.run(main())

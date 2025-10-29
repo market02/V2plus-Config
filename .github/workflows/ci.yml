@@ -1,14 +1,11 @@
-name: Python CI
+name: Daily Node Grabber
 
 on:
-  push:
-    branches:
-      - main
   schedule:
-    - cron: "0 12 * * *"
+    - cron: "0 12 * * *"  # 每天中午12点运行
 
 jobs:
-  build:
+  grab-nodes:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
@@ -34,13 +31,12 @@ jobs:
         run: |
           python src/node_grabber.py
 
-      - name: Commit and push changes
-        run: |
-          git config --local user.email "v9736982301@outlook.com"
-          git config --local user.name "amessboy"
-          git add subscription_links.txt
-          git diff --staged --quiet || git commit -m "Update subscription links - $(date)"
-          git push
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: subscription-nodes
+          path: sub_out.txt
+          retention-days: 7
 
       - name: Run tests
         run: |

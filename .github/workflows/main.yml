@@ -91,11 +91,15 @@ jobs:
           ssh-private-key: |
             ${{ secrets.GITCODE_SSH_PRIVATE_KEY }}
             ${{ secrets.GITEE_SSH_PRIVATE_KEY }}
+            ${{ secrets.GITLINK_SSH_PRIVATE_KEY }}
+            ${{ secrets.ATOMGIT_SSH_PRIVATE_KEY }}
 
       - name: Add Git hosts to known hosts
         run: |
           ssh-keyscan -H gitcode.com >> ~/.ssh/known_hosts
           ssh-keyscan -H gitee.com >> ~/.ssh/known_hosts
+          ssh-keyscan -H gitlink.org.cn >> ~/.ssh/known_hosts
+          ssh-keyscan -H atomgit.com >> ~/.ssh/known_hosts
 
       - name: Debug SSH connections
         run: |
@@ -103,6 +107,10 @@ jobs:
           ssh -T git@gitcode.com -o StrictHostKeyChecking=no || echo "GitCode SSH test completed with exit code $?"
           echo "Testing SSH connection to gitee.com..."
           ssh -T git@gitee.com -o StrictHostKeyChecking=no || echo "Gitee SSH test completed with exit code $?"
+          echo "Testing SSH connection to gitlink.org.cn..."
+          ssh -T git@gitlink.org.cn -o StrictHostKeyChecking=no || echo "GitLink SSH test completed with exit code $?"
+          echo "Testing SSH connection to atomgit.com..."
+          ssh -T git@atomgit.com -o StrictHostKeyChecking=no || echo "AtomGit SSH test completed with exit code $?"
           echo "Listing SSH keys:"
           ssh-add -l
 
@@ -116,20 +124,14 @@ jobs:
           # ---------- GitCode ----------
           git clone git@gitcode.com:amessboy/DeployData.git gitcode-deploy
           cd gitcode-deploy
-
-          # 先删除旧的分块加密文件（result0、result1、...）
           rm -f result[0-9]* || true
-
           cp ../data/All_Configs_Sub_valid.txt ./m_result
-
-          # 拷贝分割后的加密/明文文件
           for f in ../data/result*; do
             if [ -f "$f" ]; then
               base=$(basename "$f")
               cp "$f" "./$base"
             fi
           done
-
           [[ -f ../data/US_CA ]] && cp ../data/US_CA ./US_CA || true
           [[ -f ../data/EU_JP_KR ]] && cp ../data/EU_JP_KR ./EU_JP_KR || true
           [[ -f ../data/Other ]] && cp ../data/Other ./Other || true
@@ -141,20 +143,52 @@ jobs:
           # ---------- Gitee ----------
           git clone git@gitee.com:amessboy/DeployData.git gitee-deploy
           cd gitee-deploy
-
-          # 先删除旧的分块加密文件（result0、result1、...）
           rm -f result[0-9]* || true
-
           cp ../data/All_Configs_Sub_valid.txt ./m_result
-
-          # 拷贝分割后的加密/明文文件
           for f in ../data/result*; do
             if [ -f "$f" ]; then
               base=$(basename "$f")
               cp "$f" "./$base"
             fi
           done
+          [[ -f ../data/US_CA ]] && cp ../data/US_CA ./US_CA || true
+          [[ -f ../data/EU_JP_KR ]] && cp ../data/EU_JP_KR ./EU_JP_KR || true
+          [[ -f ../data/Other ]] && cp ../data/Other ./Other || true
+          git add -A .
+          git commit -m "Update encrypted configs from GitHub Actions" || echo "No changes to commit"
+          git pull --strategy-option=theirs && git push
+          cd ..
 
+          # ---------- GitLink ----------
+          git clone git@gitlink.org.cn:amessboy/DeployData.git gitlink-deploy
+          cd gitlink-deploy
+          rm -f result[0-9]* || true
+          cp ../data/All_Configs_Sub_valid.txt ./m_result
+          for f in ../data/result*; do
+            if [ -f "$f" ]; then
+              base=$(basename "$f")
+              cp "$f" "./$base"
+            fi
+          done
+          [[ -f ../data/US_CA ]] && cp ../data/US_CA ./US_CA || true
+          [[ -f ../data/EU_JP_KR ]] && cp ../data/EU_JP_KR ./EU_JP_KR || true
+          [[ -f ../data/Other ]] && cp ../data/Other ./Other || true
+          git add -A .
+          git commit -m "Update encrypted configs from GitHub Actions" || echo "No changes to commit"
+          git pull --strategy-option=theirs && git push
+          cd ..
+
+          # ---------- AtomGit ----------
+          git clone git@atomgit.com:amessboy/DeployData.git atomgit-deploy
+          cd atomgit-deploy
+          rm -f result[0-9]* || true
+          cp ../data/All_Configs_Sub_valid.txt ./m_result
+          for f in ../data/result*; do
+            if [ -f "$f" ]; then
+              base=$(basename "$f")
+              cp "$f" "./$base"
+            fi
+          done
           [[ -f ../data/US_CA ]] && cp ../data/US_CA ./US_CA || true
           [[ -f ../data/EU_JP_KR ]] && cp ../data/EU_JP_KR ./EU_JP_KR || true
           [[ -f ../data/Other ]] && cp ../data/Other ./Other || true

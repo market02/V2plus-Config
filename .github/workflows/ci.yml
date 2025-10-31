@@ -2,7 +2,7 @@ name: Daily Node Grabber
 
 on:
   schedule:
-    - cron: "0 12 * * *"  # 每天中午12点运行
+    - cron: "0 16 * * *" # 每天下午4点运行
 
 jobs:
   grab-nodes:

@@ -11,16 +11,16 @@
 | ✅ | 5 | 30 | 2h | https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/refs/heads/main/mtn/sub_3.txt |
 | ✅ | 5 | 30 | idk | https://raw.githubusercontent.com/yebekhe/vpn-fail/refs/heads/main/sub-link |
 | ✅ | 5 | 8215 | 2h | https://raw.githubusercontent.com/Surfboardv2ray/TGParse/main/splitted/mixed |
-| ✅ | 5 | 590 | 2h | https://raw.githubusercontent.com/itsyebekhe/PSG/main/lite/subscriptions/xray/normal/mix |
+| ✅ | 5 | 589 | 2h | https://raw.githubusercontent.com/itsyebekhe/PSG/main/lite/subscriptions/xray/normal/mix |
 | ✅ | 5 | 98 | 2h | https://raw.githubusercontent.com/HosseinKoofi/GO_V2rayCollector/main/mixed_iran.txt |
 | ✅ | 5 | 508 | 2h | https://raw.githubusercontent.com/arshiacomplus/v2rayExtractor/refs/heads/main/mix/sub.html |
 | ✅ | 5 | 295 | 8h | https://raw.githubusercontent.com/Rayan-Config/C-Sub/refs/heads/main/configs/proxy.txt |
 | ✅ | 5 | 200 | 200 | https://raw.githubusercontent.com/mahdibland/ShadowsocksAggregator/master/Eternity.txt |
 | ✅ | 5 | 2 | 2 | https://raw.githubusercontent.com/Everyday-VPN/Everyday-VPN/main/subscription/main.txt |
-| ✅ | 5 | 182 | 235 | https://raw.githubusercontent.com/MahsaNetConfigTopic/config/refs/heads/main/xray_final.txt |
+| ✅ | 5 | 165 | 235 | https://raw.githubusercontent.com/MahsaNetConfigTopic/config/refs/heads/main/xray_final.txt |
 | ✅ | 5 | 51 | 4h | https://raw.githubusercontent.com/wrfree/free/main/README.md |
 | ✅ | 5 | 26 | 1d | https://raw.githubusercontent.com/aiboboxx/v2rayfree/main/README.md |
-| ✅ | 5 | 3 | 1h | https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub |
+| ✅ | 5 | 51 | 1h | https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub |
 | ✅ | 5 | 5715 | 12h | https://raw.githubusercontent.com/mahdibland/V2RayAggregator/master/sub/sub_merge_base64.txt |
 | ✅ | 5 | 200 | 200 | https://raw.githubusercontent.com/mahdibland/V2RayAggregator/master/Eternity |
 | ✅ | 5 | 61 | 61 | https://raw.githubusercontent.com/mahdibland/V2RayAggregator/master/sub/airport_merge_base64.txt |
@@ -34,7 +34,7 @@
 | ✅ | 5 | 906 | 906 | https://raw.githubusercontent.com/AlienVPN402/AlienVPN402-subscribe-servers-sing-box/main/index.html |
 | ✅ | 5 | 136 | 136 | https://raw.githubusercontent.com/LonUp/NodeList/main/V2RAY/Latest_base64.txt |
 | ✅ | 5 | 548 | 548 | https://raw.githubusercontent.com/w1770946466/Auto_proxy/main/Long_term_subscription_num |
-| ✅ | 5 | 17 | 21 | https://raw.githubusercontent.com/a2470982985/getNode/main/v2ray.txt |
+| ✅ | 5 | 65 | 21 | https://raw.githubusercontent.com/a2470982985/getNode/main/v2ray.txt |
 | ✅ | 5 | 232 | 232 | https://raw.githubusercontent.com/ZywChannel/free/main/sub |
 | ✅ | 5 | 36 | 62 | https://raw.githubusercontent.com/peasoft/NoMoreWalls/master/list.txt |
 | ✅ | 5 | 43 | 50 | https://raw.githubusercontent.com/ts-sf/fly/main/v2 |
@@ -46,4 +46,4 @@
 | ✅ | 5 | 70 | 70 | https://raw.githubusercontent.com/Ashkan-m/v2ray/main/Sub.txt |
 | ✅ | 5 | 194 | 333 | https://raw.githubusercontent.com/MrMohebi/xray-proxy-grabber-telegram/master/collected-proxies/row-url/all.txt |
 | ✅ | 5 | 298 | 479 | https://raw.githubusercontent.com/xiaoji235/airport-free/refs/heads/main/v2ray.txt |
-| ✅ | 5 | 57 | 479 | https://raw.githubusercontent.com/market02/V2plus-Config/refs/heads/main/sub_out.txt |
+| ❌ | 4 | 0 | 479 | https://raw.githubusercontent.com/market02/V2plus-Config/refs/heads/main/sub_out.txt |

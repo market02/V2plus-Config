@@ -5,22 +5,22 @@
 | available | responsibility | proxy count | updated every | url |
 |:---------:|:--------------:|:-------------:|:-------------:|:----|
 | ✅ | 5 | 81 | 4h | https://raw.githubusercontent.com/ALIILAPRO/v2rayNG-Config/main/sub.txt |
-| ✅ | 5 | 24 | 1h | https://raw.githubusercontent.com/aiboboxx/v2rayfree/main/v2 |
-| ✅ | 5 | 7 | 12h | https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/refs/heads/main/mtn/sub_1.txt |
+| ✅ | 5 | 38 | 1h | https://raw.githubusercontent.com/aiboboxx/v2rayfree/main/v2 |
+| ✅ | 5 | 5 | 12h | https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/refs/heads/main/mtn/sub_1.txt |
 | ✅ | 5 | 30 | 2h | https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/refs/heads/main/mtn/sub_2.txt |
 | ✅ | 5 | 30 | 2h | https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/refs/heads/main/mtn/sub_3.txt |
 | ✅ | 5 | 30 | idk | https://raw.githubusercontent.com/yebekhe/vpn-fail/refs/heads/main/sub-link |
-| ✅ | 5 | 8228 | 2h | https://raw.githubusercontent.com/Surfboardv2ray/TGParse/main/splitted/mixed |
+| ✅ | 5 | 8753 | 2h | https://raw.githubusercontent.com/Surfboardv2ray/TGParse/main/splitted/mixed |
 | ✅ | 5 | 585 | 2h | https://raw.githubusercontent.com/itsyebekhe/PSG/main/lite/subscriptions/xray/normal/mix |
 | ✅ | 5 | 98 | 2h | https://raw.githubusercontent.com/HosseinKoofi/GO_V2rayCollector/main/mixed_iran.txt |
 | ✅ | 5 | 458 | 2h | https://raw.githubusercontent.com/arshiacomplus/v2rayExtractor/refs/heads/main/mix/sub.html |
-| ✅ | 5 | 363 | 8h | https://raw.githubusercontent.com/Rayan-Config/C-Sub/refs/heads/main/configs/proxy.txt |
+| ✅ | 5 | 219 | 8h | https://raw.githubusercontent.com/Rayan-Config/C-Sub/refs/heads/main/configs/proxy.txt |
 | ✅ | 5 | 200 | 200 | https://raw.githubusercontent.com/mahdibland/ShadowsocksAggregator/master/Eternity.txt |
 | ✅ | 5 | 2 | 2 | https://raw.githubusercontent.com/Everyday-VPN/Everyday-VPN/main/subscription/main.txt |
-| ✅ | 5 | 165 | 235 | https://raw.githubusercontent.com/MahsaNetConfigTopic/config/refs/heads/main/xray_final.txt |
+| ✅ | 5 | 214 | 235 | https://raw.githubusercontent.com/MahsaNetConfigTopic/config/refs/heads/main/xray_final.txt |
 | ✅ | 5 | 51 | 4h | https://raw.githubusercontent.com/wrfree/free/main/README.md |
-| ✅ | 5 | 24 | 1d | https://raw.githubusercontent.com/aiboboxx/v2rayfree/main/README.md |
-| ✅ | 5 | 60 | 1h | https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub |
+| ✅ | 5 | 38 | 1d | https://raw.githubusercontent.com/aiboboxx/v2rayfree/main/README.md |
+| ✅ | 5 | 52 | 1h | https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub |
 | ✅ | 5 | 5803 | 12h | https://raw.githubusercontent.com/mahdibland/V2RayAggregator/master/sub/sub_merge_base64.txt |
 | ✅ | 5 | 200 | 200 | https://raw.githubusercontent.com/mahdibland/V2RayAggregator/master/Eternity |
 | ✅ | 5 | 61 | 61 | https://raw.githubusercontent.com/mahdibland/V2RayAggregator/master/sub/airport_merge_base64.txt |
@@ -34,10 +34,10 @@
 | ✅ | 5 | 906 | 906 | https://raw.githubusercontent.com/AlienVPN402/AlienVPN402-subscribe-servers-sing-box/main/index.html |
 | ✅ | 5 | 136 | 136 | https://raw.githubusercontent.com/LonUp/NodeList/main/V2RAY/Latest_base64.txt |
 | ✅ | 5 | 548 | 548 | https://raw.githubusercontent.com/w1770946466/Auto_proxy/main/Long_term_subscription_num |
-| ✅ | 5 | 74 | 21 | https://raw.githubusercontent.com/a2470982985/getNode/main/v2ray.txt |
+| ✅ | 5 | 68 | 21 | https://raw.githubusercontent.com/a2470982985/getNode/main/v2ray.txt |
 | ✅ | 5 | 232 | 232 | https://raw.githubusercontent.com/ZywChannel/free/main/sub |
 | ✅ | 5 | 48 | 62 | https://raw.githubusercontent.com/peasoft/NoMoreWalls/master/list.txt |
-| ✅ | 5 | 50 | 50 | https://raw.githubusercontent.com/ts-sf/fly/main/v2 |
+| ✅ | 5 | 46 | 50 | https://raw.githubusercontent.com/ts-sf/fly/main/v2 |
 | ✅ | 5 | 562 | 562 | https://raw.githubusercontent.com/WilliamStar007/ClashX-V2Ray-TopFreeProxy/main/combine/v2ray.config.txt |
 | ✅ | 5 | 79 | 36 | https://raw.githubusercontent.com/HakurouKen/free-node/main/public |
 | ✅ | 5 | 6 | 26 | https://raw.githubusercontent.com/ermaozi/get_subscribe/main/subscribe/v2ray.txt |

@@ -46,3 +46,4 @@
 | ✅ | 5 | 70 | 70 | https://raw.githubusercontent.com/Ashkan-m/v2ray/main/Sub.txt |
 | ✅ | 5 | 236 | 333 | https://raw.githubusercontent.com/MrMohebi/xray-proxy-grabber-telegram/master/collected-proxies/row-url/all.txt |
 | ✅ | 5 | 236 | 479 | https://raw.githubusercontent.com/xiaoji235/airport-free/refs/heads/main/v2ray.txt |
+| ✅ | 5 | 351 | 351 | https://raw.githubusercontent.com/market02/V2plus-Config/refs/heads/main/data/out/sub_out.txt |

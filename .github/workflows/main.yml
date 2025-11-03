@@ -95,9 +95,9 @@ jobs:
 
       - name: Add Git hosts to known hosts
         run: |
-          ssh-keyscan -H gitcode.com >> ~/.ssh/known_hosts
-          ssh-keyscan -H gitee.com >> ~/.ssh/known_hosts
-          ssh-keyscan -H atomgit.com >> ~/.ssh/known_hosts
+          ssh-keyscan -H gitcode.com >> ~/.ssh/known_hosts || echo "Failed to add gitcode.com to known_hosts"
+          ssh-keyscan -H gitee.com >> ~/.ssh/known_hosts || echo "Failed to add gitee.com to known_hosts"
+          ssh-keyscan -H atomgit.com >> ~/.ssh/known_hosts || echo "Failed to add atomgit.com to known_hosts"
 
       - name: Debug SSH connections
         run: |
@@ -118,58 +118,73 @@ jobs:
           git config --global init.defaultBranch main
 
           # ---------- GitCode ----------
-          git clone git@gitcode.com:amessboy/DeployData.git gitcode-deploy
-          cd gitcode-deploy
-          rm -f result[0-9]* || true
-          cp ../data/All_Configs_Sub_valid.txt ./m_result
-          for f in ../data/result*; do
-            if [ -f "$f" ]; then
-              base=$(basename "$f")
-              cp "$f" "./$base"
-            fi
-          done
-          [[ -f ../data/US_CA ]] && cp ../data/US_CA ./US_CA || true
-          [[ -f ../data/EU_JP_KR ]] && cp ../data/EU_JP_KR ./EU_JP_KR || true
-          [[ -f ../data/Other ]] && cp ../data/Other ./Other || true
-          git add -A .
-          git commit -m "Update encrypted configs from GitHub Actions" || echo "No changes to commit"
-          git pull --strategy-option=theirs && git push
-          cd ..
+          echo "Starting GitCode deployment..."
+          if git clone git@gitcode.com:amessboy/DeployData.git gitcode-deploy; then
+            cd gitcode-deploy
+            rm -f result[0-9]* || true
+            cp ../data/All_Configs_Sub_valid.txt ./m_result
+            for f in ../data/result*; do
+              if [ -f "$f" ]; then
+                base=$(basename "$f")
+                cp "$f" "./$base"
+              fi
+            done
+            [[ -f ../data/US_CA ]] && cp ../data/US_CA ./US_CA || true
+            [[ -f ../data/EU_JP_KR ]] && cp ../data/EU_JP_KR ./EU_JP_KR || true
+            [[ -f ../data/Other ]] && cp ../data/Other ./Other || true
+            git add -A .
+            git commit -m "Update encrypted configs from GitHub Actions" || echo "No changes to commit"
+            git pull --strategy-option=theirs && git push || echo "GitCode push failed"
+            cd ..
+            echo "GitCode deployment completed"
+          else
+            echo "GitCode clone failed, skipping GitCode deployment"
+          fi
 
           # ---------- Gitee ----------
-          git clone git@gitee.com:amessboy/DeployData.git gitee-deploy
-          cd gitee-deploy
-          rm -f result[0-9]* || true
-          cp ../data/All_Configs_Sub_valid.txt ./m_result
-          for f in ../data/result*; do
-            if [ -f "$f" ]; then
-              base=$(basename "$f")
-              cp "$f" "./$base"
-            fi
-          done
-          [[ -f ../data/US_CA ]] && cp ../data/US_CA ./US_CA || true
-          [[ -f ../data/EU_JP_KR ]] && cp ../data/EU_JP_KR ./EU_JP_KR || true
-          [[ -f ../data/Other ]] && cp ../data/Other ./Other || true
-          git add -A .
-          git commit -m "Update encrypted configs from GitHub Actions" || echo "No changes to commit"
-          git pull --strategy-option=theirs && git push
-          cd ..
+          echo "Starting Gitee deployment..."
+          if git clone git@gitee.com:amessboy/DeployData.git gitee-deploy; then
+            cd gitee-deploy
+            rm -f result[0-9]* || true
+            cp ../data/All_Configs_Sub_valid.txt ./m_result
+            for f in ../data/result*; do
+              if [ -f "$f" ]; then
+                base=$(basename "$f")
+                cp "$f" "./$base"
+              fi
+            done
+            [[ -f ../data/US_CA ]] && cp ../data/US_CA ./US_CA || true
+            [[ -f ../data/EU_JP_KR ]] && cp ../data/EU_JP_KR ./EU_JP_KR || true
+            [[ -f ../data/Other ]] && cp ../data/Other ./Other || true
+            git add -A .
+            git commit -m "Update encrypted configs from GitHub Actions" || echo "No changes to commit"
+            git pull --strategy-option=theirs && git push || echo "Gitee push failed"
+            cd ..
+            echo "Gitee deployment completed"
+          else
+            echo "Gitee clone failed, skipping Gitee deployment"
+          fi
 
           # ---------- AtomGit ----------
-          git clone git@atomgit.com:amessboy/DeployData.git atomgit-deploy
-          cd atomgit-deploy
-          rm -f result[0-9]* || true
-          cp ../data/All_Configs_Sub_valid.txt ./m_result
-          for f in ../data/result*; do
-            if [ -f "$f" ]; then
-              base=$(basename "$f")
-              cp "$f" "./$base"
-            fi
-          done
-          [[ -f ../data/US_CA ]] && cp ../data/US_CA ./US_CA || true
-          [[ -f ../data/EU_JP_KR ]] && cp ../data/EU_JP_KR ./EU_JP_KR || true
-          [[ -f ../data/Other ]] && cp ../data/Other ./Other || true
-          git add -A .
-          git commit -m "Update encrypted configs from GitHub Actions" || echo "No changes to commit"
-          git pull --strategy-option=theirs && git push
-          cd ..
+          echo "Starting AtomGit deployment..."
+          if git clone git@atomgit.com:amessboy/DeployData.git atomgit-deploy; then
+            cd atomgit-deploy
+            rm -f result[0-9]* || true
+            cp ../data/All_Configs_Sub_valid.txt ./m_result
+            for f in ../data/result*; do
+              if [ -f "$f" ]; then
+                base=$(basename "$f")
+                cp "$f" "./$base"
+              fi
+            done
+            [[ -f ../data/US_CA ]] && cp ../data/US_CA ./US_CA || true
+            [[ -f ../data/EU_JP_KR ]] && cp ../data/EU_JP_KR ./EU_JP_KR || true
+            [[ -f ../data/Other ]] && cp ../data/Other ./Other || true
+            git add -A .
+            git commit -m "Update encrypted configs from GitHub Actions" || echo "No changes to commit"
+            git pull --strategy-option=theirs && git push || echo "AtomGit push failed"
+            cd ..
+            echo "AtomGit deployment completed"
+          else
+            echo "AtomGit clone failed, skipping AtomGit deployment"
+          fi

@@ -1,11 +1,11 @@
 name: Daily Node Grabber
 
+permissions:
+  contents: write
+
 on:
-  push:
-    branches:
-      - main
   schedule:
-    - cron: "0 8 * * *" # 每天UTC时间16:00运行
+    - cron: "0 8 * * *" # 每天UTC时间08:00运行（北京时间16:00）
 jobs:
   grab-nodes:
     runs-on: ubuntu-latest
@@ -33,10 +33,21 @@ jobs:
         run: |
           python src/node_crawler.py
 
+      - name: Commit and push generated files
+        uses: EndBug/add-and-commit@v9
+        with:
+          author_name: "GitHub Actions"
+          author_email: "actions@github.com"
+          message: "Daily Node Grabber - Update subscription nodes"
+          add: "data/out/"
+          push: "origin HEAD --force"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: sub_out.txt
+          name: subscription-nodes
           path: data/out/sub_out.txt
           retention-days: 7
 

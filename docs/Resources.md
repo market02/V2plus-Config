@@ -9,7 +9,7 @@
 | ✅ | 5 | 4 | 2h | https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/refs/heads/main/mtn/sub_2.txt |
 | ✅ | 5 | 30 | 2h | https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/refs/heads/main/mtn/sub_3.txt |
 | ✅ | 5 | 30 | idk | https://raw.githubusercontent.com/yebekhe/vpn-fail/refs/heads/main/sub-link |
-| ✅ | 5 | 3326 | 2h | https://raw.githubusercontent.com/Surfboardv2ray/TGParse/main/splitted/mixed |
+| ✅ | 5 | 3116 | 2h | https://raw.githubusercontent.com/Surfboardv2ray/TGParse/main/splitted/mixed |
 | ✅ | 5 | 276 | 2h | https://raw.githubusercontent.com/itsyebekhe/PSG/main/lite/subscriptions/xray/normal/mix |
 | ✅ | 5 | 952 | 2h | https://raw.githubusercontent.com/HosseinKoofi/GO_V2rayCollector/main/mixed_iran.txt |
 | ✅ | 5 | 294 | 2h | https://raw.githubusercontent.com/arshiacomplus/v2rayExtractor/refs/heads/main/mix/sub.html |
@@ -19,7 +19,7 @@
 | ✅ | 5 | 107 | 235 | https://raw.githubusercontent.com/MahsaNetConfigTopic/config/refs/heads/main/xray_final.txt |
 | ✅ | 5 | 51 | 4h | https://raw.githubusercontent.com/wrfree/free/main/README.md |
 | ✅ | 5 | 210 | 1d | https://raw.githubusercontent.com/aiboboxx/v2rayfree/main/README.md |
-| ✅ | 5 | 22 | 1h | https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub |
+| ✅ | 5 | 10 | 1h | https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub |
 | ✅ | 5 | 5176 | 12h | https://raw.githubusercontent.com/mahdibland/V2RayAggregator/master/sub/sub_merge_base64.txt |
 | ✅ | 5 | 200 | 200 | https://raw.githubusercontent.com/mahdibland/V2RayAggregator/master/Eternity |
 | ✅ | 5 | 61 | 61 | https://raw.githubusercontent.com/mahdibland/V2RayAggregator/master/sub/airport_merge_base64.txt |
@@ -43,6 +43,6 @@
 | ✅ | 5 | 32 | 32 | https://raw.githubusercontent.com/ermaozi01/free_clash_vpn/main/subscribe/v2ray.txt |
 | ✅ | 5 | 838 | 838 | https://raw.githubusercontent.com/mostafasadeghifar/v2ray-config/main/config_file.txt |
 | ✅ | 5 | 76 | 70 | https://raw.githubusercontent.com/Ashkan-m/v2ray/main/Sub.txt |
-| ✅ | 5 | 399 | 333 | https://raw.githubusercontent.com/MrMohebi/xray-proxy-grabber-telegram/master/collected-proxies/row-url/all.txt |
-| ✅ | 5 | 751 | 479 | https://raw.githubusercontent.com/xiaoji235/airport-free/refs/heads/main/v2ray.txt |
+| ✅ | 5 | 855 | 333 | https://raw.githubusercontent.com/MrMohebi/xray-proxy-grabber-telegram/master/collected-proxies/row-url/all.txt |
+| ✅ | 5 | 518 | 479 | https://raw.githubusercontent.com/xiaoji235/airport-free/refs/heads/main/v2ray.txt |
 | ✅ | 5 | 1738 | 351 | https://raw.githubusercontent.com/market02/V2plus-Config/refs/heads/main/data/out/sub_out.txt |

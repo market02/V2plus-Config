@@ -4,12 +4,12 @@
 
 | available | responsibility | proxy count | updated every | url |
 |:---------:|:--------------:|:-------------:|:-------------:|:----|
-| ✅ | 5 | 2638 | 4h | https://raw.githubusercontent.com/ALIILAPRO/v2rayNG-Config/main/sub.txt |
+| ✅ | 5 | 2654 | 4h | https://raw.githubusercontent.com/ALIILAPRO/v2rayNG-Config/main/sub.txt |
 | ✅ | 5 | 30 | 12h | https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/refs/heads/main/mtn/sub_1.txt |
-| ✅ | 5 | 9 | 2h | https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/refs/heads/main/mtn/sub_2.txt |
+| ✅ | 5 | 13 | 2h | https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/refs/heads/main/mtn/sub_2.txt |
 | ✅ | 5 | 0 | 2h | https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/refs/heads/main/mtn/sub_3.txt |
 | ✅ | 5 | 30 | idk | https://raw.githubusercontent.com/yebekhe/vpn-fail/refs/heads/main/sub-link |
-| ✅ | 5 | 6898 | 2h | https://raw.githubusercontent.com/Surfboardv2ray/TGParse/main/splitted/mixed |
+| ✅ | 5 | 7144 | 2h | https://raw.githubusercontent.com/Surfboardv2ray/TGParse/main/splitted/mixed |
 | ✅ | 5 | 952 | 2h | https://raw.githubusercontent.com/HosseinKoofi/GO_V2rayCollector/main/mixed_iran.txt |
 | ✅ | 5 | 258 | 2h | https://raw.githubusercontent.com/arshiacomplus/v2rayExtractor/refs/heads/main/mix/sub.html |
 | ✅ | 5 | 47 | 8h | https://raw.githubusercontent.com/Rayan-Config/C-Sub/refs/heads/main/configs/proxy.txt |
@@ -17,7 +17,7 @@
 | ✅ | 5 | 2 | 2 | https://raw.githubusercontent.com/Everyday-VPN/Everyday-VPN/main/subscription/main.txt |
 | ✅ | 5 | 51 | 4h | https://raw.githubusercontent.com/wrfree/free/main/README.md |
 | ✅ | 5 | 20 | 1d | https://raw.githubusercontent.com/aiboboxx/v2rayfree/main/README.md |
-| ✅ | 5 | 6 | 1h | https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub |
+| ✅ | 5 | 7 | 1h | https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub |
 | ✅ | 5 | 4033 | 12h | https://raw.githubusercontent.com/mahdibland/V2RayAggregator/master/sub/sub_merge_base64.txt |
 | ✅ | 5 | 200 | 200 | https://raw.githubusercontent.com/mahdibland/V2RayAggregator/master/Eternity |
 | ✅ | 5 | 61 | 61 | https://raw.githubusercontent.com/mahdibland/V2RayAggregator/master/sub/airport_merge_base64.txt |

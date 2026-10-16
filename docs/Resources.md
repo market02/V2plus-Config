@@ -4,9 +4,9 @@
 
 | available | responsibility | proxy count | updated every | url |
 |:---------:|:--------------:|:-------------:|:-------------:|:----|
-| ✅ | 5 | 3297 | 4h | https://raw.githubusercontent.com/ALIILAPRO/v2rayNG-Config/main/sub.txt |
+| ✅ | 5 | 3302 | 4h | https://raw.githubusercontent.com/ALIILAPRO/v2rayNG-Config/main/sub.txt |
 | ✅ | 5 | 30 | 12h | https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/refs/heads/main/mtn/sub_1.txt |
-| ✅ | 5 | 15 | 2h | https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/refs/heads/main/mtn/sub_2.txt |
+| ✅ | 5 | 14 | 2h | https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/refs/heads/main/mtn/sub_2.txt |
 | ✅ | 5 | 0 | 2h | https://raw.githubusercontent.com/mahsanet/MahsaFreeConfig/refs/heads/main/mtn/sub_3.txt |
 | ✅ | 5 | 30 | idk | https://raw.githubusercontent.com/yebekhe/vpn-fail/refs/heads/main/sub-link |
 | ✅ | 5 | 7024 | 2h | https://raw.githubusercontent.com/Surfboardv2ray/TGParse/main/splitted/mixed |
@@ -32,13 +32,13 @@
 | ✅ | 5 | 548 | 548 | https://raw.githubusercontent.com/w1770946466/Auto_proxy/main/Long_term_subscription_num |
 | ✅ | 5 | 0 | 21 | https://raw.githubusercontent.com/a2470982985/getNode/main/v2ray.txt |
 | ✅ | 5 | 232 | 232 | https://raw.githubusercontent.com/ZywChannel/free/main/sub |
-| ✅ | 4 | 378 | 62 | https://raw.githubusercontent.com/peasoft/NoMoreWalls/master/list.txt |
+| ✅ | 4 | 359 | 62 | https://raw.githubusercontent.com/peasoft/NoMoreWalls/master/list.txt |
 | ✅ | 5 | 201 | 50 | https://raw.githubusercontent.com/ts-sf/fly/main/v2 |
-| ✅ | 5 | 2010 | 562 | https://raw.githubusercontent.com/WilliamStar007/ClashX-V2Ray-TopFreeProxy/main/combine/v2ray.config.txt |
-| ✅ | 5 | 76 | 36 | https://raw.githubusercontent.com/HakurouKen/free-node/main/public |
-| ✅ | 5 | 443 | 26 | https://raw.githubusercontent.com/ermaozi/get_subscribe/main/subscribe/v2ray.txt |
-| ✅ | 5 | 11 | 32 | https://raw.githubusercontent.com/ermaozi01/free_clash_vpn/main/subscribe/v2ray.txt |
+| ✅ | 5 | 1967 | 562 | https://raw.githubusercontent.com/WilliamStar007/ClashX-V2Ray-TopFreeProxy/main/combine/v2ray.config.txt |
+| ✅ | 5 | 62 | 36 | https://raw.githubusercontent.com/HakurouKen/free-node/main/public |
+| ✅ | 5 | 407 | 26 | https://raw.githubusercontent.com/ermaozi/get_subscribe/main/subscribe/v2ray.txt |
+| ✅ | 5 | 4 | 32 | https://raw.githubusercontent.com/ermaozi01/free_clash_vpn/main/subscribe/v2ray.txt |
 | ✅ | 4 | 838 | 838 | https://raw.githubusercontent.com/mostafasadeghifar/v2ray-config/main/config_file.txt |
 | ✅ | 5 | 32 | 70 | https://raw.githubusercontent.com/Ashkan-m/v2ray/main/Sub.txt |
 | ✅ | 4 | 6557 | 479 | https://raw.githubusercontent.com/xiaoji235/airport-free/refs/heads/main/v2ray.txt |
-| ✅ | 4 | 1527 | 351 | https://raw.githubusercontent.com/market02/V2plus-Config/refs/heads/main/data/out/sub_out.txt |
+| ✅ | 4 | 1447 | 351 | https://raw.githubusercontent.com/market02/V2plus-Config/refs/heads/main/data/out/sub_out.txt |
